@@ -1,0 +1,3 @@
+[submodule "third-party/urcontrol-c"]
+	path = third-party/urcontrol-c
+	url = https://github.com/RE-Kovalev/urcontrol-c.git
