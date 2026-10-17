@@ -45,9 +45,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="singleCheckBox">
+      <widget class="QCheckBox" name="soloCheckBox">
        <property name="text">
-        <string>Single</string>
+        <string>Solo</string>
        </property>
       </widget>
      </item>

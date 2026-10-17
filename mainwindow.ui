@@ -156,7 +156,7 @@
           <item>
            <layout class="QVBoxLayout" name="REV_XGroup" stretch="1,0">
             <item>
-             <widget class="MixerChannel" name="widget" native="true"/>
+             <widget class="MixerChannel" name="REV_X" native="true"/>
             </item>
             <item>
              <widget class="QLabel" name="REV_XLabel">
@@ -173,7 +173,7 @@
           <item>
            <layout class="QVBoxLayout" name="MainGroup" stretch="1,0">
             <item>
-             <widget class="MixerChannel" name="widget_2" native="true"/>
+             <widget class="MixerChannel" name="Main" native="true"/>
             </item>
             <item>
              <widget class="QLabel" name="MainLabel">

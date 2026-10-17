@@ -42,6 +42,11 @@ private:
     void connectDevice();
     void disconnectDevice();
     void updateMixerInputs();
+    void bindDAW();
+    void bindMUSIC();
+    void bindVoice();
+    void bindREV_X();
+    void bindMain();
 
 };
 #endif // MAINWINDOW_H

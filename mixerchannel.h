@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include <urcontrol.h>
+
 namespace Ui {
 class MixerChannel;
 }
@@ -15,12 +17,26 @@ public:
     explicit MixerChannel(QWidget *parent = nullptr);
     ~MixerChannel();
 
-    void setLevel(float level);
-    void setVolume(int volume);
+    void bind_channel(uint8_t _channel) { channel = _channel; }
+
+    bool bindFaderParameter(const urc_parameter* parameter);
+    bool bindMuteParameter(const urc_parameter* parameter);
+    bool bindSoloParameter(const urc_parameter* parameter);
+
+    void setFaderValue(int32_t value);
     void setMute(bool muted);
+    void setSolo(bool solo);
+
+signals:
+    void parameterWriteFailed(int error);
 
 private:
     Ui::MixerChannel *ui;
+
+    const urc_parameter* faderParameter = nullptr;
+    const urc_parameter* muteParameter = nullptr;
+    const urc_parameter* soloParameter = nullptr;
+    uint8_t channel = 0;
 };
 
 #endif // MIXERCHANNEL_H
