@@ -5,8 +5,6 @@
 
 #include <urcontrol.h>
 
-#include "devicecloser.h"
-
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -45,6 +43,5 @@ private:
     void disconnectDevice();
     void updateMixerInputs();
 
-    std::unique_ptr<urc_device, DeviceCloser> device{};
 };
 #endif // MAINWINDOW_H

@@ -70,9 +70,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         audiolevelmeter.h audiolevelmeter.cpp
         midiport.h
         midiport.cpp
-        devicecloser.h
+
         mixerchannel.h mixerchannel.cpp mixerchannel.ui
         mixerchannel.cpp mixerchannel.h
+        device.h device.cpp
 
 
     )

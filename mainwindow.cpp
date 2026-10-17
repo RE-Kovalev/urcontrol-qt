@@ -7,6 +7,7 @@
 #include <QVBoxLayout>
 
 #include "midiport.h"
+#include "device.h"
 
 
 constexpr const char* kConfigPath = "./devices.ini";
@@ -140,24 +141,22 @@ void MainWindow::on_autoconnect_stateChanged(int arg1)
 
 void MainWindow::connectDevice()
 {
-    if (device
+    if (Device::get()
     || ui->modelComboBox->currentIndex() < 0
     || ui->midiPortComboBox->currentIndex() < 0)
         return;
 
     const QByteArray port = ui->midiPortComboBox->currentData().toString().toUtf8();
-    urc_device* raw = nullptr;
-    const int result = urc_open(&raw, port.constData());
+    const int result = Device::open(port.constData());
     if (result != URC_OK)
     {
-        if (raw != nullptr)
-            urc_close(raw);
+        Device::close();
 
         QMessageBox::warning(this, tr("Connection error"), QString::fromUtf8(urc_strerror(result)));
         statusBar()->showMessage(tr("Connection error"));
         return;
     }
-    device.reset(raw);
+
     ui->modelComboBox->setEnabled(false);
     ui->midiPortComboBox->setEnabled(false);
     ui->updateButton->setEnabled(false);
@@ -168,7 +167,7 @@ void MainWindow::connectDevice()
 
 void MainWindow::disconnectDevice()
 {
-    device.reset();
+    Device::close();
     ui->modelComboBox->setEnabled(true);
     ui->midiPortComboBox->setEnabled(true);
     ui->updateButton->setEnabled(true);
@@ -179,7 +178,7 @@ void MainWindow::disconnectDevice()
 
 void MainWindow::on_connectButton_released()
 {
-    if (device)
+    if (Device::get())
         disconnectDevice();
     else
         connectDevice();
