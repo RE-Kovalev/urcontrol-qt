@@ -66,6 +66,14 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(urcontrol-qt
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        audiofader.h audiofader.cpp
+        audiolevelmeter.h audiolevelmeter.cpp
+        midiport.h
+        midiport.cpp
+        devicecloser.h
+        mixerchannel.h mixerchannel.cpp mixerchannel.ui
+        mixerchannel.cpp mixerchannel.h
+
 
     )
 # Define target properties for Android with Qt 6 as:
@@ -103,6 +111,8 @@ target_link_libraries(urcontrol-qt PRIVATE
     ALSA::ALSA
 )
 
+target_include_directories(urcontrol-qt PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
@@ -127,3 +137,5 @@ install(TARGETS urcontrol-qt
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(urcontrol-qt)
 endif()
+
+configure_file(devices.ini devices.ini COPYONLY)
