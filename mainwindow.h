@@ -5,6 +5,8 @@
 
 #include <urcontrol.h>
 
+#include "mixerchannel.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -42,11 +44,6 @@ private:
     void connectDevice();
     void disconnectDevice();
     void updateMixerInputs();
-    void bindDAW();
-    void bindMUSIC();
-    void bindVoice();
-    void bindREV_X();
-    void bindMain();
-
+    void bind(const char* paramGroupName, MixerChannel* mixerChannel, int mix = 1, int channel = 0);
 };
 #endif // MAINWINDOW_H

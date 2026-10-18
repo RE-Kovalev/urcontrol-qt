@@ -26,11 +26,11 @@ MainWindow::MainWindow(QWidget *parent)
     restoreLastSelection();
     refreshPorts();
 
-    bindDAW();
-    bindMUSIC();
-    bindVoice();
-    bindREV_X();
-    bindMain();
+    bind("DAWMix", ui->DAW);
+    bind("MusicMix", ui->Music, 1, 0);
+    bind("MusicMix", ui->Voice, 1, 1); // Voice on channel 2 (1 in lib) for MusicMMixI
+    bind("ReverbMix", ui->REV_X);
+    bind("MainMix", ui->Main);
 
     initialization = false;
     if (!result)
@@ -206,148 +206,55 @@ void MainWindow::updateMixerInputs()
 
             delete item;
         }
-
         // Create new
         for (size_t i = 0; i < inputsCount; i++)
         {
-            // TODO: choose Mix
-            QString faderParameterName = QString("InputMix%1Volume").arg(1);
-            const urc_parameter *faderParameter = urc_find_parameter( "mixer"
-                                                                     , faderParameterName.toUtf8().constData()
-                                                                     );
-            QString muteParameterName = QString("InputMix%1Mute").arg(1);
-            const urc_parameter *muteParameter = urc_find_parameter( "mixer"
-                                                                   , muteParameterName.toUtf8().constData()
-                                                                   );
-            QString soloParameterName = QString("InputMix%1Solo").arg(1);
-            const urc_parameter *soloParameter = urc_find_parameter( "mixer"
-                                                                   , soloParameterName.toUtf8().constData()
-                                                                   );
-
             QWidget* inputWidget = new QWidget();
             QVBoxLayout* inputGroup = new QVBoxLayout(inputWidget);
 
             MixerChannel* input = new MixerChannel(inputWidget);
-            input->bind_channel(i);
-            input->bindFaderParameter(faderParameter);
-            input->bindMuteParameter(muteParameter);
-            input->bindSoloParameter(soloParameter);
-            inputGroup->addWidget(input);
+            bind("InputMix", input);
+            inputGroup->addWidget(input, 1);
 
             QLabel* inputLabel = new QLabel(tr("Input %1").arg(i + 1), inputWidget);
-            inputGroup->addWidget(inputLabel);
+            inputLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+            inputGroup->addWidget(inputLabel, 0);
+
+            inputGroup->setContentsMargins(0, 0, 0, 0);
+            inputGroup->setSpacing(0);
 
             ui->inputChannels->addWidget(inputWidget);
         }
     }
 }
 
-void MainWindow::bindDAW()
+void MainWindow::bind(const char* paramGroupName, MixerChannel* mixerChannel, int mix, int channel)
 {
-
-    QString faderParameterName = QString("DAWMix%1Volume").arg(1);
+    QString faderParameterName = QString(paramGroupName) + QString("%1Volume").arg(mix);
     const urc_parameter *faderParameter = urc_find_parameter( "mixer"
                                                              , faderParameterName.toUtf8().constData()
                                                              );
-    QString muteParameterName = QString("DAWMix%1Mute").arg(1);
+    QString muteParameterName = QString(paramGroupName) + QString("%1Mute").arg(mix);
     const urc_parameter *muteParameter = urc_find_parameter( "mixer"
                                                             , muteParameterName.toUtf8().constData()
                                                             );
-    QString soloParameterName = QString("DAWMix%1Solo").arg(1);
+    QString soloParameterName = QString(paramGroupName) + QString("%1Solo").arg(mix);
     const urc_parameter *soloParameter = urc_find_parameter( "mixer"
                                                             , soloParameterName.toUtf8().constData()
                                                             );
+    QString PANParameterName = QString(paramGroupName) + QString("%1Pan").arg(mix);
+    const urc_parameter *PANParameter = urc_find_parameter( "mixer"
+                                                           , PANParameterName.toUtf8().constData()
+                                                           );
 
-    ui->DAW->bind_channel(0);
-    ui->DAW->bindFaderParameter(faderParameter);
-    ui->DAW->bindMuteParameter(muteParameter);
-    ui->DAW->bindSoloParameter(soloParameter);
-}
+    mixerChannel->bind_channel(channel);
 
-void MainWindow::bindMUSIC()
-{
+    if (!mixerChannel->bindSoloParameter(soloParameter))
+        mixerChannel->setSoloVisible(false);
+    if (!mixerChannel->bindMuteParameter(PANParameter))
+        mixerChannel->setPANVisible(false);
 
-    QString faderParameterName = QString("MusicMix%1Volume").arg(1);
-    const urc_parameter *faderParameter = urc_find_parameter( "mixer"
-                                                             , faderParameterName.toUtf8().constData()
-                                                             );
-    QString muteParameterName = QString("MusicMix%1Mute").arg(1);
-    const urc_parameter *muteParameter = urc_find_parameter( "mixer"
-                                                            , muteParameterName.toUtf8().constData()
-                                                            );
-    QString soloParameterName = QString("MusicMix%1Solo").arg(1);
-    const urc_parameter *soloParameter = urc_find_parameter( "mixer"
-                                                            , soloParameterName.toUtf8().constData()
-                                                            );
-
-    ui->Music->bind_channel(0);
-    ui->Music->bindFaderParameter(faderParameter);
-    ui->Music->bindMuteParameter(muteParameter);
-    ui->Music->bindSoloParameter(soloParameter);
-}
-
-void MainWindow::bindVoice()
-{
-
-    QString faderParameterName = QString("VoiceMix%1Volume").arg(1);
-    const urc_parameter *faderParameter = urc_find_parameter( "mixer"
-                                                             , faderParameterName.toUtf8().constData()
-                                                             );
-    QString muteParameterName = QString("VoiceMix%1Mute").arg(1);
-    const urc_parameter *muteParameter = urc_find_parameter( "mixer"
-                                                            , muteParameterName.toUtf8().constData()
-                                                            );
-    QString soloParameterName = QString("VoiceMix%1Solo").arg(1);
-    const urc_parameter *soloParameter = urc_find_parameter( "mixer"
-                                                            , soloParameterName.toUtf8().constData()
-                                                            );
-
-    ui->Voice->bind_channel(0);
-    ui->Voice->bindFaderParameter(faderParameter);
-    ui->Voice->bindMuteParameter(muteParameter);
-    ui->Voice->bindSoloParameter(soloParameter);
-}
-
-void MainWindow::bindREV_X()
-{
-
-    QString faderParameterName = QString("ReverbMix%1Volume").arg(1);
-    const urc_parameter *faderParameter = urc_find_parameter( "mixer"
-                                                             , faderParameterName.toUtf8().constData()
-                                                             );
-    QString muteParameterName = QString("ReverbMix%1Mute").arg(1);
-    const urc_parameter *muteParameter = urc_find_parameter( "mixer"
-                                                            , muteParameterName.toUtf8().constData()
-                                                            );
-    QString soloParameterName = QString("ReverbMix%1Solo").arg(1);
-    const urc_parameter *soloParameter = urc_find_parameter( "mixer"
-                                                            , soloParameterName.toUtf8().constData()
-                                                            );
-
-    ui->REV_X->bind_channel(0);
-    ui->REV_X->bindFaderParameter(faderParameter);
-    ui->REV_X->bindMuteParameter(muteParameter);
-    ui->REV_X->bindSoloParameter(soloParameter);
-}
-
-void MainWindow::bindMain()
-{
-
-    QString faderParameterName = QString("MainMix%1Volume").arg(1);
-    const urc_parameter *faderParameter = urc_find_parameter( "mixer"
-                                                             , faderParameterName.toUtf8().constData()
-                                                             );
-    QString muteParameterName = QString("MainMix%1Mute").arg(1);
-    const urc_parameter *muteParameter = urc_find_parameter( "mixer"
-                                                            , muteParameterName.toUtf8().constData()
-                                                            );
-    QString soloParameterName = QString("MainMix%1Solo").arg(1);
-    const urc_parameter *soloParameter = urc_find_parameter( "mixer"
-                                                            , soloParameterName.toUtf8().constData()
-                                                            );
-
-    ui->Main->bind_channel(0);
-    ui->Main->bindFaderParameter(faderParameter);
-    ui->Main->bindMuteParameter(muteParameter);
-    ui->Main->bindSoloParameter(soloParameter);
+    if (!mixerChannel->bindFaderParameter(faderParameter)
+    ||  !mixerChannel->bindMuteParameter(muteParameter))
+        mixerChannel->setDisabled(true);
 }

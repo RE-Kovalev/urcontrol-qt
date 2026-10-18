@@ -11,6 +11,14 @@ MixerChannel::MixerChannel(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Update policy for hidable elements
+    QSizePolicy policy = ui->soloCheckBox->sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    ui->soloCheckBox->setSizePolicy(policy);
+    policy = ui->PAN->sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    ui->PAN->setSizePolicy(policy);
+
     connect(ui->fader, &QSlider::valueChanged,
             this, [this](int value)
             {
@@ -113,4 +121,31 @@ void MixerChannel::setSolo(bool solo)
 {
     const QSignalBlocker blocker(ui->soloCheckBox);
     ui->soloCheckBox->setChecked(solo);
+}
+
+bool MixerChannel::bindPANParameter(const urc_parameter* _parameter)
+{
+    if (!_parameter)
+        return false;
+
+    PANParameter = _parameter;
+
+    const QSignalBlocker blocker(ui->PAN);
+
+    ui->PAN->setRange(PANParameter->minimum, PANParameter->maximum);
+
+    if (PANParameter->default_value != URC_NO_DEFAULT)
+        ui->fader->setValue(PANParameter->default_value);
+
+    return true;
+}
+
+void MixerChannel::setSoloVisible(bool visibility)
+{
+    ui->soloCheckBox->setVisible(visibility);
+}
+
+void MixerChannel::setPANVisible(bool visibility)
+{
+    ui->PAN->setVisible(visibility);
 }

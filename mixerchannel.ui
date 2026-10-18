@@ -38,6 +38,13 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
+      <widget class="AudioKnob" name="PAN">
+       <property name="minimum">
+        <number>-99</number>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="muteCheckBox">
        <property name="text">
         <string>Mute</string>
@@ -66,6 +73,11 @@
    <extends>QWidget</extends>
    <header>audiolevelmeter.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AudioKnob</class>
+   <extends>QDial</extends>
+   <header>audioknob.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

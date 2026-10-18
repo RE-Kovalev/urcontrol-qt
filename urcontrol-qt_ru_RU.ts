@@ -98,7 +98,7 @@
         <translation type="unfinished">Подключено: </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="237"/>
+        <location filename="mainwindow.cpp" line="219"/>
         <source>Input %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -111,12 +111,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mixerchannel.ui" line="43"/>
+        <location filename="mixerchannel.ui" line="50"/>
         <source>Mute</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mixerchannel.ui" line="50"/>
+        <location filename="mixerchannel.ui" line="57"/>
         <source>Solo</source>
         <translation type="unfinished"></translation>
     </message>

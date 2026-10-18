@@ -74,6 +74,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         mixerchannel.h mixerchannel.cpp mixerchannel.ui
         mixerchannel.cpp mixerchannel.h
         device.h device.cpp
+        audioknob.h audioknob.cpp
 
 
     )

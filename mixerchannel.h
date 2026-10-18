@@ -22,11 +22,15 @@ public:
     bool bindFaderParameter(const urc_parameter* parameter);
     bool bindMuteParameter(const urc_parameter* parameter);
     bool bindSoloParameter(const urc_parameter* parameter);
+    bool bindPANParameter(const urc_parameter* parameter);
 
     void setFaderValue(int32_t value);
     void setMute(bool muted);
     void setSolo(bool solo);
+    void setPam(int32_t value);
 
+    void setSoloVisible(bool visibility);
+    void setPANVisible(bool visibility);
 signals:
     void parameterWriteFailed(int error);
 
@@ -36,6 +40,7 @@ private:
     const urc_parameter* faderParameter = nullptr;
     const urc_parameter* muteParameter = nullptr;
     const urc_parameter* soloParameter = nullptr;
+    const urc_parameter* PANParameter = nullptr;
     uint8_t channel = 0;
 };
 
