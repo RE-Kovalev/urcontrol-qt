@@ -6,8 +6,8 @@
 #include "device.h"
 
 MixerChannel::MixerChannel(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::MixerChannel)
+: QWidget(parent)
+, ui(new Ui::MixerChannel)
 {
     ui->setupUi(this);
 
@@ -28,6 +28,18 @@ MixerChannel::MixerChannel(QWidget *parent)
 
                 const int result = urc_change_parameter(Device::get(), faderParameter->id, value, channel);
                 qWarning() << result;
+                if (result != URC_OK)
+                    emit parameterWriteFailed(result);
+            });
+
+    connect(ui->PAN, &QDial::valueChanged,
+            this, [this](int value)
+            {
+                if (!Device::get()
+                ||  !PANParameter)
+                    return;
+
+                const int result = urc_change_parameter(Device::get(), PANParameter->id, value, channel);
                 if (result != URC_OK)
                     emit parameterWriteFailed(result);
             });
@@ -148,4 +160,13 @@ void MixerChannel::setSoloVisible(bool visibility)
 void MixerChannel::setPANVisible(bool visibility)
 {
     ui->PAN->setVisible(visibility);
+}
+
+void MixerChannel::setPANValue(int32_t value)
+{
+    if (!PANParameter)
+        return;
+
+    const QSignalBlocker blocker(ui->PAN);
+    ui->PAN->setValue(value);
 }

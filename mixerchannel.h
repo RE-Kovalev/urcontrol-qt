@@ -5,11 +5,13 @@
 
 #include <urcontrol.h>
 
+#include "parameterapplier.h"
+
 namespace Ui {
 class MixerChannel;
 }
 
-class MixerChannel : public QWidget
+class MixerChannel : public QWidget, public ParameterApplier
 {
     Q_OBJECT
 
@@ -24,10 +26,10 @@ public:
     bool bindSoloParameter(const urc_parameter* parameter);
     bool bindPANParameter(const urc_parameter* parameter);
 
-    void setFaderValue(int32_t value);
-    void setMute(bool muted);
-    void setSolo(bool solo);
-    void setPam(int32_t value);
+    virtual void setFaderValue(int32_t value);
+    virtual void setMute(bool muted);
+    virtual void setSolo(bool solo);
+    virtual void setPANValue(int32_t value);
 
     void setSoloVisible(bool visibility);
     void setPANVisible(bool visibility);

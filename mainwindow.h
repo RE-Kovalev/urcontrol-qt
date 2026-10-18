@@ -2,10 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPointer>
 
 #include <urcontrol.h>
 
 #include "mixerchannel.h"
+#include "parameterreader.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -36,6 +38,24 @@ private:
     Ui::MainWindow *ui;
     bool initialization = true;
 
+    // This registry is independent of the actual Qt widget type and is easily
+    // extendable: additional parameter groups can reuse the same read engine.
+    struct ParameterBinding
+    {
+        QString unit;
+        QString name;
+        uint16_t id;
+        uint8_t channel;
+        QPointer<QObject> target;
+        std::function<void(int32_t)> applyValue;
+    };
+
+    QVector<ParameterBinding> bindings;
+    QPointer<ParameterReader> reader;
+    bool disconnectRequested = false;
+    int readSucceeded = 0;
+    int readFailed = 0;
+
     bool loadModels();
     void restoreLastSelection();
     void loadAutoConnect(const QString& model);
@@ -45,5 +65,12 @@ private:
     void disconnectDevice();
     void updateMixerInputs();
     void bind(const char* paramGroupName, MixerChannel* mixerChannel, int mix = 1, int channel = 0);
+
+    bool bindParameter(MixerChannel* mixerChannel, const QString &name, MixerChannel::Control control, uint8_t channel);
+    void registerBinding(const urc_parameter *parameter, uint8_t channel, QObject* target, std::function<void(int32_t)> applyValue);
+    void readInitialParameters();
+    void onParameterRead(int index, int result, int value);
+    void onInitialReadFinished();
+    void finishDisconnect();
 };
 #endif // MAINWINDOW_H

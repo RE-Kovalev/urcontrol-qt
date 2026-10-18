@@ -75,6 +75,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         mixerchannel.cpp mixerchannel.h
         device.h device.cpp
         audioknob.h audioknob.cpp
+        parameterreader.h
+        parameterreader.cpp
+        parameterapplier.h parameterapplier.cpp
 
 
     )
