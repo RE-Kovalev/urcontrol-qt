@@ -135,7 +135,7 @@ bool MixerChannel::bindPANParameter(const urc_parameter* _parameter)
     ui->PAN->setRange(PANParameter->minimum, PANParameter->maximum);
 
     if (PANParameter->default_value != URC_NO_DEFAULT)
-        ui->fader->setValue(PANParameter->default_value);
+        ui->PAN->setValue(PANParameter->default_value);
 
     return true;
 }

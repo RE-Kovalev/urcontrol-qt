@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     bind("DAWMix", ui->DAW);
     bind("MusicMix", ui->Music, 1, 0);
-    bind("MusicMix", ui->Voice, 1, 1); // Voice on channel 2 (1 in lib) for MusicMMixI
+    bind("MusicMix", ui->Voice, 1, 1); // Voice on channel 2 (1 in lib - zero based) for MusicMMixI
     bind("ReverbMix", ui->REV_X);
     bind("MainMix", ui->Main);
 
@@ -213,7 +213,7 @@ void MainWindow::updateMixerInputs()
             QVBoxLayout* inputGroup = new QVBoxLayout(inputWidget);
 
             MixerChannel* input = new MixerChannel(inputWidget);
-            bind("InputMix", input);
+            bind("InputMix", input, 1, i); // i channel (Zero based)
             inputGroup->addWidget(input, 1);
 
             QLabel* inputLabel = new QLabel(tr("Input %1").arg(i + 1), inputWidget);
@@ -251,7 +251,7 @@ void MainWindow::bind(const char* paramGroupName, MixerChannel* mixerChannel, in
 
     if (!mixerChannel->bindSoloParameter(soloParameter))
         mixerChannel->setSoloVisible(false);
-    if (!mixerChannel->bindMuteParameter(PANParameter))
+    if (!mixerChannel->bindPANParameter(PANParameter))
         mixerChannel->setPANVisible(false);
 
     if (!mixerChannel->bindFaderParameter(faderParameter)
