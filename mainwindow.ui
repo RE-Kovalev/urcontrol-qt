@@ -80,114 +80,372 @@
      </layout>
     </item>
     <item>
-     <widget class="QScrollArea" name="mixerArea">
+     <widget class="QTabWidget" name="mixerTabs">
       <property name="enabled">
        <bool>false</bool>
       </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="mixerAreaContent">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>780</width>
-         <height>523</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
-        <item>
-         <layout class="QHBoxLayout" name="inputChannels"/>
+      <widget class="QWidget" name="mixer1Area">
+       <attribute name="title">
+        <string>Mix1</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="mixer1Area_scroll">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="mixer1AreaContent">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>758</width>
+             <height>473</height>
+            </rect>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
+            <item>
+             <layout class="QHBoxLayout" name="inputChannels1"/>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="otherChannels1">
+              <item>
+               <layout class="QVBoxLayout" name="DAWGroup1" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="DAW1" native="true">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="DAWLabel1">
+                  <property name="text">
+                   <string>DAW</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="MusicGroup1" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="Music1" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="MusicLabel1">
+                  <property name="text">
+                   <string>Music</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="VoiceGroup1" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="Voice1" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="VoiceLabel1">
+                  <property name="text">
+                   <string>Voice</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="REV_XGroup1" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="REV_X1" native="true">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="REV_XLabel1">
+                  <property name="text">
+                   <string>REV-X</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="MainGroup1" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="Main1" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="MainLabel1">
+                  <property name="text">
+                   <string>Main</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
-        <item>
-         <layout class="QHBoxLayout" name="otherChannels">
-          <item>
-           <layout class="QVBoxLayout" name="DAWGroup" stretch="1,0">
+       </layout>
+      </widget>
+      <widget class="QWidget" name="mixer2Area">
+       <attribute name="title">
+        <string>Mix2</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="mixer2Area_scroll">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="mixer2AreaContent">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>758</width>
+             <height>473</height>
+            </rect>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1">
             <item>
-             <widget class="MixerChannel" name="DAW" native="true"/>
+             <layout class="QHBoxLayout" name="inputChannels2"/>
             </item>
             <item>
-             <widget class="QLabel" name="DAWLabel">
-              <property name="text">
-               <string>DAW</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="otherChannels2">
+              <item>
+               <layout class="QVBoxLayout" name="DAWGroup2" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="DAW2" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="DAWLabel2">
+                  <property name="text">
+                   <string>DAW</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="MusicGroup2" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="Music2" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="MusicLabel2">
+                  <property name="text">
+                   <string>Music</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="VoiceGroup2" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="Voice2" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="VoiceLabel2">
+                  <property name="text">
+                   <string>Voice</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="REV_XGroup2" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="REV_X2" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="REV_XLabel2">
+                  <property name="text">
+                   <string>REV-X</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="MainGroup2" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="Main2" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="MainLabel2">
+                  <property name="text">
+                   <string>Main</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </item>
            </layout>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0">
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="mixer3Area">
+       <attribute name="title">
+        <string>Mix3</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="mixer3Area_scroll">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="mixer3AreaContent">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>758</width>
+             <height>473</height>
+            </rect>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,1">
             <item>
-             <widget class="MixerChannel" name="Music" native="true"/>
+             <layout class="QHBoxLayout" name="inputChannels3"/>
             </item>
             <item>
-             <widget class="QLabel" name="MusicLabel">
-              <property name="text">
-               <string>Music</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="otherChannels3">
+              <item>
+               <layout class="QVBoxLayout" name="DAWGroup3" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="DAW3" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="DAWLabel3">
+                  <property name="text">
+                   <string>DAW</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="MusicGroup3" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="Music3" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="MusicLabel3">
+                  <property name="text">
+                   <string>Music</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="VoiceGroup3" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="Voice3" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="VoiceLabel3">
+                  <property name="text">
+                   <string>Voice</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="REV_XGroup3" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="REV_X3" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="REV_XLabel3">
+                  <property name="text">
+                   <string>REV-X</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="MainGroup3" stretch="1,0">
+                <item>
+                 <widget class="MixerChannel" name="Main3" native="true"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="MainLabel3">
+                  <property name="text">
+                   <string>Main</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </item>
            </layout>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="VoiceGroup" stretch="1,0">
-            <item>
-             <widget class="MixerChannel" name="Voice" native="true"/>
-            </item>
-            <item>
-             <widget class="QLabel" name="VoiceLabel">
-              <property name="text">
-               <string>Voice</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="REV_XGroup" stretch="1,0">
-            <item>
-             <widget class="MixerChannel" name="REV_X" native="true"/>
-            </item>
-            <item>
-             <widget class="QLabel" name="REV_XLabel">
-              <property name="text">
-               <string>REV-X</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="MainGroup" stretch="1,0">
-            <item>
-             <widget class="MixerChannel" name="Main" native="true"/>
-            </item>
-            <item>
-             <widget class="QLabel" name="MainLabel">
-              <property name="text">
-               <string>Main</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>

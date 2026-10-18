@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QPointer>
+#include <QHBoxLayout>
 
 #include <urcontrol.h>
 
@@ -34,6 +35,8 @@ private slots:
 
     void on_connectButton_released();
 
+    void on_mixerTabs_currentChanged(int index);
+
 private:
     Ui::MainWindow *ui;
     bool initialization = true;
@@ -63,7 +66,7 @@ private:
     void saveLastSelection();
     void connectDevice();
     void disconnectDevice();
-    void updateMixerInputs();
+    void updateMixerInputs(QHBoxLayout* inputChannels, int mix);
     void bind(const char* paramGroupName, MixerChannel* mixerChannel, int mix = 1, int channel = 0);
 
     bool bindParameter(MixerChannel* mixerChannel, const QString &name, MixerChannel::Control control, uint8_t channel);
@@ -72,5 +75,6 @@ private:
     void onParameterRead(int index, int result, int value);
     void onInitialReadFinished();
     void finishDisconnect();
+    void updateHeadphonesMix();
 };
 #endif // MAINWINDOW_H

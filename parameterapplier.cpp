@@ -1,5 +1,5 @@
 #include "parameterapplier.h"
-#include <iostream>
+
 void ParameterApplier::applyParameterValue(Control control, int32_t value)
 {
     switch (control)
@@ -16,7 +16,6 @@ void ParameterApplier::applyParameterValue(Control control, int32_t value)
         break;
     case Control::Pan:
         setPANValue(value);
-        std::cout << value << " !\n\n";
         break;
     }
 }

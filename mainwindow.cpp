@@ -27,18 +27,30 @@ MainWindow::MainWindow(QWidget *parent)
     restoreLastSelection();
     refreshPorts();
 
-    bind("DAWMix", ui->DAW);
-    bind("MusicMix", ui->Music, 1, 0);
-    bind("MusicMix", ui->Voice, 1, 1); // Voice on channel 2 (1 in lib - zero based) for MusicMMixI
-    bind("ReverbMix", ui->REV_X);
-    bind("MainMix", ui->Main);
+    bind("DAWMix", ui->DAW1, 1);
+    bind("MusicMix", ui->Music1, 1, 0);
+    bind("MusicMix", ui->Voice1, 1, 1); // Voice on channel 2 (1 in lib - zero based) for MusicMMixI
+    bind("ReverbMix", ui->REV_X1, 1);
+    bind("MainMix", ui->Main1, 1);
+    bind("DAWMix", ui->DAW2, 2);
+    bind("MusicMix", ui->Music2, 2, 0);
+    bind("MusicMix", ui->Voice2, 2, 1); // Voice on channel 2 (1 in lib - zero based) for MusicMMixI
+    bind("ReverbMix", ui->REV_X2, 2);
+    bind("MainMix", ui->Main2, 2);
+    bind("DAWMix", ui->DAW3, 3);
+    bind("MusicMix", ui->Music3, 3, 0);
+    bind("MusicMix", ui->Voice3, 3, 1); // Voice on channel 2 (1 in lib - zero based) for MusicMMixI
+    bind("ReverbMix", ui->REV_X3, 3);
+    bind("MainMix", ui->Main3, 3);
 
     initialization = false;
     if (!result)
         ui->connectButton->setDisabled(true);
     else
     {
-        updateMixerInputs();
+        updateMixerInputs(ui->inputChannels1, 1);
+        updateMixerInputs(ui->inputChannels2, 2);
+        updateMixerInputs(ui->inputChannels3, 3);
         if (ui->autoconnect->isChecked())
             connectDevice();
     }
@@ -87,6 +99,11 @@ void MainWindow::restoreLastSelection()
 
     const bool autoconnect = lasts.value("AutoConnect").toBool();
     ui->autoconnect->setChecked(autoconnect);
+
+    const int lastMix = lasts.value("Mix", 1).toInt();
+    const int mixIndex = qBound(0, lastMix - 1, ui->mixerTabs->count() - 1);
+
+    ui->mixerTabs->setCurrentIndex(mixIndex);
 }
 
 void MainWindow::refreshPorts()
@@ -118,6 +135,7 @@ void MainWindow::saveLastSelection()
         lasts.setValue("Device", ui->modelComboBox->currentText());
         lasts.setValue("Port", ui->midiPortComboBox->currentData().toString());
         lasts.setValue("AutoConnect", ui->autoconnect->isChecked());
+        lasts.setValue("Mix", ui->mixerTabs->currentIndex() + 1);
         lasts.sync();
     }
 }
@@ -130,7 +148,9 @@ void MainWindow::on_updateButton_clicked()
 
 void MainWindow::on_modelComboBox_currentTextChanged(const QString &arg1)
 {
-    updateMixerInputs();
+    updateMixerInputs(ui->inputChannels1, 1);
+    updateMixerInputs(ui->inputChannels2, 2);
+    updateMixerInputs(ui->inputChannels3, 3);
     saveLastSelection();
 }
 
@@ -167,7 +187,7 @@ void MainWindow::connectDevice()
     ui->modelComboBox->setEnabled(false);
     ui->midiPortComboBox->setEnabled(false);
     ui->updateButton->setEnabled(false);
-    ui->mixerArea->setEnabled(false);
+    ui->mixerTabs->setEnabled(false);
     ui->connectButton->setText(tr("Disconnect"));
     statusBar()->showMessage(tr("Connected: ") + QString::fromUtf8(port));
     readInitialParameters();
@@ -195,7 +215,7 @@ void MainWindow::finishDisconnect()
     ui->modelComboBox->setEnabled(true);
     ui->midiPortComboBox->setEnabled(true);
     ui->updateButton->setEnabled(true);
-    ui->mixerArea->setEnabled(false);
+    ui->mixerTabs->setEnabled(false);
     ui->connectButton->setEnabled(true);
     ui->connectButton->setText(tr("Connect"));
     statusBar()->showMessage(tr("Disconnected"));
@@ -209,14 +229,14 @@ void MainWindow::on_connectButton_released()
         connectDevice();
 }
 
-void MainWindow::updateMixerInputs()
+void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
 {
     if (!initialization)
     {
         const int inputsCount = ui->modelComboBox->currentData().toInt();
 
         // Remove olds
-        while(QLayoutItem* item = ui->inputChannels->takeAt(0))
+        while(QLayoutItem* item = inputChannels->takeAt(0))
         {
             if(QWidget* widget = item->widget())
             {
@@ -232,7 +252,7 @@ void MainWindow::updateMixerInputs()
             QVBoxLayout* inputGroup = new QVBoxLayout(inputWidget);
 
             MixerChannel* input = new MixerChannel(inputWidget);
-            bind("InputMix", input, 1, i); // i channel (Zero based)
+            bind("InputMix", input, mix, i); // i channel (Zero based)
             inputGroup->addWidget(input, 1);
 
             QLabel* inputLabel = new QLabel(tr("Input %1").arg(i + 1), inputWidget);
@@ -242,7 +262,7 @@ void MainWindow::updateMixerInputs()
             inputGroup->setContentsMargins(0, 0, 0, 0);
             inputGroup->setSpacing(0);
 
-            ui->inputChannels->addWidget(inputWidget);
+            inputChannels->addWidget(inputWidget);
         }
     }
 }
@@ -330,7 +350,7 @@ void MainWindow::readInitialParameters()
 
     if (requests.isEmpty())
     {
-        ui->mixerArea->setEnabled(true);
+        ui->mixerTabs->setEnabled(true);
         statusBar()->showMessage(tr("Connected: no parameters to read"));
         return;
     }
@@ -382,5 +402,45 @@ void MainWindow::onInitialReadFinished()
         return;
     }
 
-    ui->mixerArea->setEnabled(true);
+    ui->mixerTabs->setEnabled(true);
 }
+
+void MainWindow::on_mixerTabs_currentChanged(int index)
+{
+    if (!initialization
+    &&  index >= 0)
+    {
+        saveLastSelection();
+        updateHeadphonesMix();
+    }
+}
+
+void MainWindow::updateHeadphonesMix()
+{
+    if (!Device::get()
+    ||  reader)
+        return;
+
+    const int mixIndex = ui->mixerTabs->currentIndex();
+
+    if (mixIndex < 0
+    ||  mixIndex >= 3)
+        return;
+
+    static const int values[] = {0, 1, 4};
+
+    const urc_parameter* parameter = urc_find_parameter("mixer", "Headphones2Input");
+
+    if (!parameter)
+        return;
+
+    const int result = urc_change_parameter(Device::get(), parameter->id, values[mixIndex], 0);
+
+    if (result != URC_OK)
+    {
+        qWarning() << "Headphones2Input error:"
+                   << result
+                   << urc_strerror(result);
+    }
+}
+

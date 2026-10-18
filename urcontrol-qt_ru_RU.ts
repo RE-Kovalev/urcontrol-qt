@@ -30,85 +30,110 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="76"/>
-        <location filename="mainwindow.cpp" line="200"/>
+        <location filename="mainwindow.cpp" line="220"/>
         <source>Connect</source>
         <translation type="unfinished">Подключиться</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="113"/>
+        <location filename="mainwindow.ui" line="92"/>
+        <source>Mix1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="218"/>
+        <source>Mix2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="336"/>
+        <source>Mix3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="127"/>
+        <location filename="mainwindow.ui" line="249"/>
+        <location filename="mainwindow.ui" line="367"/>
         <source>DAW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="130"/>
+        <location filename="mainwindow.ui" line="144"/>
+        <location filename="mainwindow.ui" line="266"/>
+        <location filename="mainwindow.ui" line="384"/>
         <source>Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="147"/>
+        <location filename="mainwindow.ui" line="161"/>
+        <location filename="mainwindow.ui" line="283"/>
+        <location filename="mainwindow.ui" line="401"/>
         <source>Voice</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="164"/>
+        <location filename="mainwindow.ui" line="182"/>
+        <location filename="mainwindow.ui" line="300"/>
+        <location filename="mainwindow.ui" line="418"/>
         <source>REV-X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="181"/>
+        <location filename="mainwindow.ui" line="199"/>
+        <location filename="mainwindow.ui" line="317"/>
+        <location filename="mainwindow.ui" line="435"/>
         <source>Main</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="24"/>
-        <location filename="mainwindow.cpp" line="201"/>
+        <location filename="mainwindow.cpp" line="221"/>
         <source>Disconnected</source>
         <translation type="unfinished">Отключено</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="58"/>
-        <location filename="mainwindow.cpp" line="63"/>
+        <location filename="mainwindow.cpp" line="70"/>
+        <location filename="mainwindow.cpp" line="75"/>
         <source>Devices configuration</source>
         <translation type="unfinished">Конфигурации устройств</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="58"/>
+        <location filename="mainwindow.cpp" line="70"/>
         <source>File ./devices.ini don&apos;t exists</source>
         <translation type="unfinished">Файл ./devices.ini не существует</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="63"/>
+        <location filename="mainwindow.cpp" line="75"/>
         <source>Devices is not found in ./devices.ini</source>
         <translation type="unfinished">В файле ./devices.ini не найдены устройства</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="162"/>
-        <location filename="mainwindow.cpp" line="163"/>
+        <location filename="mainwindow.cpp" line="182"/>
+        <location filename="mainwindow.cpp" line="183"/>
         <source>Connection error</source>
         <translation type="unfinished">Ошибка подключения</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="171"/>
+        <location filename="mainwindow.cpp" line="191"/>
         <source>Disconnect</source>
         <translation type="unfinished">Отключиться</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="172"/>
+        <location filename="mainwindow.cpp" line="192"/>
         <source>Connected: </source>
         <translation type="unfinished">Подключено: </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="184"/>
+        <location filename="mainwindow.cpp" line="204"/>
         <source>Stopping parameter read...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="238"/>
+        <location filename="mainwindow.cpp" line="258"/>
         <source>Input %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="334"/>
+        <location filename="mainwindow.cpp" line="354"/>
         <source>Connected: no parameters to read</source>
         <translation type="unfinished"></translation>
     </message>
