@@ -32,20 +32,13 @@ struct MeterRoute
 // Строки соответствуют Mix 1, Mix 2, Mix 3.
 // Столбцы: DAW, Music, Voice, REV-X, Main.
 
-constexpr MeterRoute kMeterRouting[3][MeterGroupCount] = {
+constexpr MeterRoute kMeterRouting[2][MeterGroupCount] = {
     {
         { 6,  7},  // Mix 1: DAW
         {54, 55},  // Mix 1: Music
         {56, 57},  // Mix 1: Voice
         {30, 31},  // Mix 1: REV-X
         {10, 11}   // Mix 1: Main
-    },
-    {
-        {-1, -1},  // Mix 2: DAW
-        {-1, -1},  // Mix 2: Music
-        {-1, -1},  // Mix 2: Voice
-        {-1, -1},  // Mix 2: REV-X
-        {80, 81}   // Mix 2: Main
     },
     {
         { 6,  7},  // Mix 3: DAW
@@ -103,11 +96,6 @@ MainWindow::MainWindow(QWidget *parent)
     bind("MusicMix", ui->Voice1, 1, 1); // Voice on channel 2 (1 in lib - zero based) for MusicMMixI
     bind("ReverbMix", ui->REV_X1, 1);
     bind("MainMix", ui->Main1, 1);
-    bind("DAWMix", ui->DAW2, 2);
-    bind("MusicMix", ui->Music2, 2, 0);
-    bind("MusicMix", ui->Voice2, 2, 1); // Voice on channel 2 (1 in lib - zero based) for MusicMMixI
-    bind("ReverbMix", ui->REV_X2, 2);
-    bind("MainMix", ui->Main2, 2);
     bind("DAWMix", ui->DAW3, 3);
     bind("MusicMix", ui->Music3, 3, 0);
     bind("MusicMix", ui->Voice3, 3, 1); // Voice on channel 2 (1 in lib - zero based) for MusicMMixI
@@ -120,7 +108,6 @@ MainWindow::MainWindow(QWidget *parent)
     else
     {
         updateMixerInputs(ui->inputChannels1, 1);
-        updateMixerInputs(ui->inputChannels2, 2);
         updateMixerInputs(ui->inputChannels3, 3);
         if (ui->autoconnect->isChecked())
             connectDevice();
@@ -229,7 +216,6 @@ void MainWindow::on_updateButton_clicked()
 void MainWindow::on_modelComboBox_currentTextChanged(const QString &arg1)
 {
     updateMixerInputs(ui->inputChannels1, 1);
-    updateMixerInputs(ui->inputChannels2, 2);
     updateMixerInputs(ui->inputChannels3, 3);
     saveLastSelection();
 }
@@ -630,11 +616,11 @@ void MainWindow::stopMeters()
                 channel->resetMeter();
 
     MixerChannel* channels[] = {
-        ui->DAW1, ui->DAW2, ui->DAW3,
-        ui->Music1, ui->Music2, ui->Music3,
-        ui->Voice1, ui->Voice2, ui->Voice3,
-        ui->REV_X1, ui->REV_X2, ui->REV_X3,
-        ui->Main1, ui->Main2, ui->Main3
+        ui->DAW1, ui->DAW3,
+        ui->Music1, ui->Music3,
+        ui->Voice1, ui->Voice3,
+        ui->REV_X1, ui->REV_X3,
+        ui->Main1, ui->Main3
     };
 
     for (MixerChannel* channel : channels)
@@ -646,11 +632,9 @@ void MainWindow::stopMeters()
 
 void MainWindow::showMeterLevels(const MeterFrame& levels)
 {
-    // Физические входы, которые уже проверили.
     showMeterLevel(0, levels[0]);
     showMeterLevel(1, levels[1]);
 
-    // Существующие виджеты на трёх вкладках.
     MixerChannel* channels[3][MeterGroupCount] = {
         {
             ui->DAW1,
@@ -658,13 +642,6 @@ void MainWindow::showMeterLevels(const MeterFrame& levels)
             ui->Voice1,
             ui->REV_X1,
             ui->Main1
-        },
-        {
-            ui->DAW2,
-            ui->Music2,
-            ui->Voice2,
-            ui->REV_X2,
-            ui->Main2
         },
         {
             ui->DAW3,
@@ -675,7 +652,7 @@ void MainWindow::showMeterLevels(const MeterFrame& levels)
         }
     };
 
-    for (int mix = 0; mix < 3; mix++)
+    for (int mix = 0; mix < 2; mix++)
     {
         for (int group = 0; group < MeterGroupCount; group++)
         {
