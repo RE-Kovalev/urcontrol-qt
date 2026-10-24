@@ -31,11 +31,15 @@ public:
     virtual void setSolo(bool solo);
     virtual void setPANValue(int32_t value);
 
-    void setMeterLevels(const urc_meter_level& level);
+    void setMono(bool mono);
+    void setMeterLevels(const urc_meter_level& left, const urc_meter_level& right);
+    void setMeterLevels(const urc_meter_level& mono);
     void resetMeter();
 
     void setSoloVisible(bool visibility);
     void setPANVisible(bool visibility);
+
+    void setFaderDisabled(bool value);
 signals:
     void parameterWriteFailed(int error);
 

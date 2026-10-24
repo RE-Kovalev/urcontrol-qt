@@ -102,6 +102,8 @@ MainWindow::MainWindow(QWidget *parent)
     bind("ReverbMix", ui->REV_X3, 3);
     bind("MainMix", ui->Main3, 3);
 
+    ui->DAW1->setFaderDisabled(true); // Disable fader for mix1
+
     initialization = false;
     if (!result)
         ui->connectButton->setDisabled(true);
@@ -326,6 +328,7 @@ void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
 
             MixerChannel* input = new MixerChannel(inputWidget);
             bind("InputMix", input, mix, i); // i channel (Zero based)
+            input->setMono(true);
             channels.append(input);
             inputGroup->addWidget(input, 1);
 
@@ -337,6 +340,9 @@ void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
             inputGroup->setSpacing(0);
 
             inputChannels->addWidget(inputWidget);
+
+            if (mix == 1)
+                input->setFaderDisabled(true); // Disable fader for mix1
         }
     }
 }

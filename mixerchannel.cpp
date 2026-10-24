@@ -172,18 +172,30 @@ void MixerChannel::setPANValue(int32_t value)
     ui->PAN->setValue(value);
 }
 
-void MixerChannel::setMeterLevels(const urc_meter_level& level)
+void MixerChannel::setFaderDisabled(bool value)
 {
-    const float currentDb = level.current / 10.0f;
-    const float peakDb = level.peak / 10.0f;
+    ui->fader->setDisabled(value);
+}
 
-    const float current = std::pow(10.0f, currentDb / 20.0f);
-    const float peak = std::pow(10.0f, peakDb / 20.0f);
+void MixerChannel::setMono(bool mono)
+{
+    ui->levelMeter->setMono(mono);
+}
 
-    ui->levelMeter->setLevels(current, peak);
+void MixerChannel::setMeterLevels(const urc_meter_level& left, const urc_meter_level& right)
+{
+    ui->levelMeter->setLevels( std::pow(10.0f, static_cast<float>(left.current) / 200.0f)
+                             , std::pow(10.0f, static_cast<float>(right.current) / 200.0f)
+                             , std::pow(10.0f, static_cast<float>(left.peak) / 200.0f)
+                             , std::pow(10.0f, static_cast<float>(right.peak) / 200.0f));
+}
+
+void MixerChannel::setMeterLevels(const urc_meter_level& mono)
+{
+    setMeterLevels(mono, mono);
 }
 
 void MixerChannel::resetMeter()
 {
-    ui->levelMeter->setLevels(0.0f, 0.0f);
+    ui->levelMeter->setLevel(0.0f);
 }
