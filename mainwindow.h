@@ -67,6 +67,11 @@ private:
     QTimer meterKeepaliveTimer;
     bool metersStarted = false;
 
+    QTimer controlPollTimer;
+    QPointer<ParameterReader> controlPollReader;
+
+    void pollSoloMute();
+
     QVector<QPointer<MixerChannel>> meterChannels[3];
 
     bool loadModels();

@@ -60,9 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Поддержание потока уровней звука
     meterKeepaliveTimer.setInterval(2000);
-
     connect(&meterKeepaliveTimer, &QTimer::timeout,
             this, [this]()
             {
@@ -84,6 +82,9 @@ MainWindow::MainWindow(QWidget *parent)
                     stopMeters();
                 }
             });
+
+    controlPollTimer.setInterval(500);
+    connect(&controlPollTimer, &QTimer::timeout, this, &MainWindow::pollSoloMute);
 
     statusBar()->showMessage(tr("Disconnected"));
 
@@ -119,10 +120,18 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    controlPollTimer.stop();
+
     if (reader)
     {
         reader->requestInterruption();
         reader->wait();
+    }
+
+    if (controlPollReader)
+    {
+        controlPollReader->requestInterruption();
+        controlPollReader->wait();
     }
 
     stopMeters();
@@ -263,11 +272,18 @@ void MainWindow::connectDevice()
 
 void MainWindow::disconnectDevice()
 {
+    controlPollTimer.stop();
+    disconnectRequested = true;
+
     if (reader)
-    {
-        // Never close the borrowed urc_device before the reader has finished.
-        disconnectRequested = true;
         reader->requestInterruption();
+
+    if (controlPollReader)
+        controlPollReader->requestInterruption();
+
+    if (reader
+    || controlPollReader)
+    {
         ui->connectButton->setEnabled(false);
         statusBar()->showMessage(tr("Stopping parameter read..."));
         return;
@@ -278,6 +294,11 @@ void MainWindow::disconnectDevice()
 
 void MainWindow::finishDisconnect()
 {
+    controlPollTimer.stop();
+
+    if (reader || controlPollReader)
+        return;
+
     stopMeters();
     if (urc_device* device = Device::get())
         urc_set_callback(device, nullptr, nullptr);
@@ -485,6 +506,9 @@ void MainWindow::onInitialReadFinished()
     }
 
     ui->mixerTabs->setEnabled(true);
+
+    controlPollTimer.start();
+    pollSoloMute();
 
     if (urc_device* device = Device::get())
         urc_set_callback(device, &MainWindow::midiCallback, this);
@@ -779,4 +803,90 @@ void MainWindow::applyIncomingParameter(uint16_t id, uint8_t channel, int32_t va
 
         binding.applyValue(value);
     }
+}
+
+void MainWindow::pollSoloMute()
+{
+    if (!Device::get()
+    ||  disconnectRequested
+    ||  reader
+    ||  controlPollReader)
+        return;
+
+    QVector<ParameterReadRequest> requests;
+    QVector<int> bindingIndices;
+
+    for (int i = 0; i < bindings.size(); ++i)
+    {
+        const ParameterBinding& binding = bindings.at(i);
+
+        if (!binding.target
+        ||  binding.unit != "mixer")
+            continue;
+
+        if (!binding.name.endsWith("Solo")
+        &&  !binding.name.endsWith("Mute"))
+            continue;
+
+        if (binding.name.contains("Mix2"))
+            continue;
+
+        requests.push_back({binding.id, binding.channel});
+
+        bindingIndices.push_back(i);
+    }
+
+    if (requests.isEmpty())
+        return;
+
+    auto* poller = new ParameterReader(requests, 150, this);
+
+    controlPollReader = poller;
+
+    connect(
+        poller,
+        &ParameterReader::parameterRead,
+        this,
+        [this, bindingIndices](int index, int result, int value)
+        {
+            if (disconnectRequested
+            ||  index < 0
+            ||  index >= bindingIndices.size())
+                return;
+
+            const ParameterBinding& binding = bindings.at(bindingIndices.at(index));
+
+            if (result != URC_OK)
+            {
+                qWarning() << "Solo/Mute poll failed:"
+                           << binding.name
+                           << "channel" << binding.channel
+                           << "result" << result;
+                return;
+            }
+
+            if (!binding.target)
+                return;
+
+            binding.applyValue(value);
+        }
+    );
+
+    connect(
+        poller,
+        &QThread::finished,
+        this,
+        [this, poller]()
+        {
+            if (controlPollReader == poller)
+                controlPollReader.clear();
+
+            if (disconnectRequested && !reader)
+                finishDisconnect();
+        }
+    );
+
+    connect(poller, &QThread::finished, poller, &QObject::deleteLater);
+
+    poller->start();
 }
