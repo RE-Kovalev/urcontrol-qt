@@ -36,6 +36,23 @@ AudioFader::AudioFader(QWidget *parent)
             margin: 0 -17px;
         }
 
+        QSlider::handle:vertical:disabled {
+            background: qlineargradient(
+                x1:0, y1:0, x2:1, y2:0,
+                stop:0 #25282c,
+                stop:0.12 #41464b,
+                stop:0.28 #555b62,
+                stop:0.5 #353a40,
+                stop:0.72 #555b62,
+                stop:0.88 #353a40,
+                stop:1 #22262a
+            );
+            border: 1px solid #202428;
+            border-radius: 3px;
+            height: 28px;
+            margin: 0 -17px;
+        }
+
         QSlider::handle:vertical:hover {
             border: 1px solid #8dc4ed;
         }
