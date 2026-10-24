@@ -92,10 +92,11 @@ void AudioLevelMeter::paintEvent(QPaintEvent* event)
         const QRectF fill(track.left(), fillTop, track.width(), bottom - fillTop);
 
         QLinearGradient gradient(track.bottomLeft(), track.topLeft());
-        gradient.setColorAt(0.0, QColor(48, 188, 91));
-        gradient.setColorAt(0.78, QColor(48, 188, 91));
-        gradient.setColorAt(0.90, QColor(240, 194, 55));
-        gradient.setColorAt(1.0, QColor(225, 65, 65));
+        gradient.setColorAt(0.00, QColor(48, 188, 91));
+        gradient.setColorAt(0.49, QColor(48, 188, 91));
+        gradient.setColorAt(0.51, QColor(240, 194, 55));
+        gradient.setColorAt(0.95, QColor(240, 194, 55));
+        gradient.setColorAt(0.96, QColor(225, 65, 65));
 
         painter.save();
         painter.setClipRect(fill);
