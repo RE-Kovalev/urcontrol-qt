@@ -92,6 +92,8 @@ private:
 
     void showMeterLevels(const MeterFrame& levels);
     void showMeterLevel(int index, const urc_meter_level& level);
-    static void meterCallback(const urc_message* message, const uint8_t* raw, size_t length, void* userData);
+    static void midiCallback(const urc_message* message, const uint8_t* raw, size_t length, void* userData);
+
+    void applyIncomingParameter(uint16_t id, uint8_t channel, int32_t value);
 };
 #endif // MAINWINDOW_H

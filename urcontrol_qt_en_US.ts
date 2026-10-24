@@ -30,7 +30,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="76"/>
-        <location filename="mainwindow.cpp" line="289"/>
+        <location filename="mainwindow.cpp" line="291"/>
         <source>Connect</source>
         <translation type="unfinished"></translation>
     </message>
@@ -77,7 +77,7 @@
     </message>
     <message>
         <location filename="mainwindow.cpp" line="88"/>
-        <location filename="mainwindow.cpp" line="290"/>
+        <location filename="mainwindow.cpp" line="292"/>
         <source>Disconnected</source>
         <translation type="unfinished"></translation>
     </message>
@@ -119,12 +119,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="335"/>
+        <location filename="mainwindow.cpp" line="337"/>
         <source>Input %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="434"/>
+        <location filename="mainwindow.cpp" line="436"/>
         <source>Connected: no parameters to read</source>
         <translation type="unfinished"></translation>
     </message>

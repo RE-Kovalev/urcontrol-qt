@@ -279,6 +279,8 @@ void MainWindow::disconnectDevice()
 void MainWindow::finishDisconnect()
 {
     stopMeters();
+    if (urc_device* device = Device::get())
+        urc_set_callback(device, nullptr, nullptr);
     Device::close();
     disconnectRequested = false;
     ui->modelComboBox->setEnabled(true);
@@ -483,6 +485,10 @@ void MainWindow::onInitialReadFinished()
     }
 
     ui->mixerTabs->setEnabled(true);
+
+    if (urc_device* device = Device::get())
+        urc_set_callback(device, &MainWindow::midiCallback, this);
+
     startMeters();
 }
 
@@ -525,21 +531,65 @@ void MainWindow::updateHeadphonesMix()
     }
 }
 
-void MainWindow::meterCallback(const urc_message* message, const uint8_t* raw, size_t length, void* userData)
+void MainWindow::midiCallback(const urc_message* message, const uint8_t* raw, size_t length, void* userData)
 {
     if (!message
-    ||  !raw
-    ||  !userData
-    ||  message->type != URC_MSG_METER)
+    ||  !userData)
+        return;
+
+    MainWindow* window = static_cast<MainWindow*>(userData);
+
+    // Входящие изменения параметров
+    if (message->type == URC_MSG_CHANGE
+    ||  message->type == URC_MSG_REPLY)
+    {
+        const uint16_t id = message->parameter;
+        const uint8_t channel = message->channel;
+        const int32_t value = message->value;
+
+        qInfo() << "MIDI parameter:"
+                << "type" << message->type
+                << "id" << id
+                << "channel" << channel
+                << "value" << value;
+
+        QMetaObject::invokeMethod(window, [window, id, channel, value]()
+            {
+                if (!Device::get()
+                ||  window->disconnectRequested)
+                    return;
+
+                window->applyIncomingParameter(id, channel, value);
+            },
+            Qt::QueuedConnection
+        );
+
+        return;
+    }
+
+    if (message->type == URC_MSG_UNKNOWN)
+    {
+        if (raw && length > 0
+        &&  length <= 64)
+            qInfo().noquote()
+            << "Unknown MIDI:"
+            << QByteArray(
+                   reinterpret_cast<const char*>(raw),
+                   static_cast<qsizetype>(length)
+                   ).toHex(' ');
+
+        return;
+    }
+
+    if (message->type != URC_MSG_METER
+    ||  !raw)
         return;
 
     MeterFrame levels{};
 
-    for (size_t i = 0; i < levels.size(); i++)
+    for (size_t i = 0; i < levels.size(); ++i)
         if (urc_meter_decode(raw, length, i, &levels[i]) != URC_OK)
             return;
-
-    MainWindow* window = static_cast<MainWindow*>(userData);
 
     QMetaObject::invokeMethod(
         window,
@@ -576,16 +626,12 @@ void MainWindow::startMeters()
 
     urc_device* device = Device::get();
 
-    urc_set_callback(device, &MainWindow::meterCallback, this);
-
     const int result = urc_meters_start(device);
 
     if (result != URC_OK)
     {
         qWarning() << "Unable to start meters:"
                    << urc_strerror(result);
-
-        urc_set_callback(device, nullptr, nullptr);
         return;
     }
 
@@ -604,8 +650,6 @@ void MainWindow::stopMeters()
 
     if (device)
     {
-        urc_set_callback(device, nullptr, nullptr);
-
         if (wasStarted)
         {
             const int result = urc_meters_stop(device);
@@ -687,5 +731,52 @@ void MainWindow::showMeterLevels(const MeterFrame& levels)
 
             channel->setMeterLevels(level);
         }
+    }
+}
+
+void MainWindow::applyIncomingParameter(uint16_t id, uint8_t channel, int32_t value)
+{
+    // Physical mix knob on device
+    if (id == 352
+    &&  channel == 0)
+    {
+        const int mix = std::clamp<int>(value, -63, 63);
+
+        // 103 = 0 dB, 0 = -inf dB.
+        constexpr int maxVolume = 103;
+
+        int inputVolume = maxVolume;
+        int dawVolume = maxVolume;
+
+        if (mix < 0)
+            dawVolume = std::lround(maxVolume * (mix + 63) / 63.0);
+        else if (mix > 0)
+            inputVolume = std::lround(maxVolume * (63 - mix) / 63.0);
+
+        for (const ParameterBinding& binding : bindings)
+        {
+            if (!binding.target || binding.unit != "mixer")
+                continue;
+
+            if (binding.id == 12)
+                // InputMix1Volume
+                binding.applyValue(inputVolume);
+            else
+            if (binding.id == 21 && binding.channel == 0)
+                // DAWMix1Volume.
+                binding.applyValue(dawVolume);
+        }
+
+        return;
+    }
+
+    for (const ParameterBinding& binding : bindings)
+    {
+        if (binding.id != id
+        ||  binding.channel != channel
+        ||  !binding.target)
+            continue;
+
+        binding.applyValue(value);
     }
 }
