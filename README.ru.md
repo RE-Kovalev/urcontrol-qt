@@ -10,7 +10,7 @@ URControl Qt - приложение на C++17 и Qt Widgets, которое в�
 
 ## Скриншот
 
-![Главное окно URControl Qt](Screenshots/MainWindow.png)
+![Главное окно URControl Qt](Screenshots/MainWindow.ru.png)
 
 ## Требования
 
