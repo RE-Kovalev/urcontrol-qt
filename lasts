@@ -1,0 +1,5 @@
+[General]
+AutoConnect=true
+Device=UR22C
+Mix=1
+Port="hw:3,0,1"

@@ -31,6 +31,9 @@ public:
     virtual void setSolo(bool solo);
     virtual void setPANValue(int32_t value);
 
+    void setMeterLevels(const urc_meter_level& level);
+    void resetMeter();
+
     void setSoloVisible(bool visibility);
     void setPANVisible(bool visibility);
 signals:

@@ -11,6 +11,7 @@ public:
 
     // Linear peak amplitude: 0.0 (silence) ... 1.0 (0 dBFS).
     void setLevel(float amplitude);
+    void setLevels(float amplitude, float peakAmplitude);
     float level() const noexcept;
     float levelDb() const noexcept;
 
@@ -22,6 +23,7 @@ protected:
 
 private:
     float m_level = 0.0f;
+    float m_peakLevel = 0.0f;
     static constexpr float MinDb = -60.0f;
     static constexpr float MaxDb = 0.0f;
 signals:

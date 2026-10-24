@@ -1,5 +1,6 @@
 #include "audiolevelmeter.h"
 
+#include <QPen>
 #include <QPainter>
 #include <QPaintEvent>
 #include <QFontMetrics>
@@ -16,18 +17,26 @@ AudioLevelMeter::AudioLevelMeter(QWidget* parent)
 
 void AudioLevelMeter::setLevel(float amplitude)
 {
-    if(!std::isfinite(amplitude))
-    {
+    setLevels(amplitude, amplitude);
+}
+
+void AudioLevelMeter::setLevels(float amplitude, float peakAmplitude)
+{
+    if (!std::isfinite(amplitude))
         amplitude = 0.0f;
-    }
+
+    if (!std::isfinite(peakAmplitude))
+        peakAmplitude = 0.0f;
 
     amplitude = std::clamp(amplitude, 0.0f, 1.0f);
-    if(m_level == amplitude)
-    {
+    peakAmplitude = std::clamp(peakAmplitude, 0.0f, 1.0f);
+
+    if (m_level == amplitude && m_peakLevel == peakAmplitude)
         return;
-    }
 
     m_level = amplitude;
+    m_peakLevel = peakAmplitude;
+
     update();
 }
 
@@ -39,9 +48,7 @@ float AudioLevelMeter::level() const noexcept
 float AudioLevelMeter::levelDb() const noexcept
 {
     if(m_level <= 0.0f)
-    {
         return -INFINITY;
-    }
 
     return 20.0f * std::log10(m_level);
 }
@@ -98,6 +105,22 @@ void AudioLevelMeter::paintEvent(QPaintEvent* event)
     }
 
     painter.setPen(QColor(180, 186, 193));
+
+    if (m_peakLevel > 0.0f)
+    {
+        const float peakDb = 20.0f * std::log10(m_peakLevel);
+
+        if (peakDb >= MinDb)
+        {
+            const qreal y = yForDb(peakDb);
+
+            painter.setPen(QPen(QColor(245, 245, 245), 2.0));
+            painter.drawLine( QPointF(track.left(), y)
+                            , QPointF(track.right(), y)
+                            );
+        }
+    }
+
     const QFontMetrics fm(font());
     const int ticks[] = {0, -3, -6, -12, -20, -30, -40, -60};
     for(const int tick : ticks)

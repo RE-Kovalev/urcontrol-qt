@@ -5,10 +5,56 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QVBoxLayout>
+#include <QMetaObject>
+#include <QDebug>
+#include <algorithm>
 
 #include "midiport.h"
 #include "device.h"
 
+enum MeterGroup
+{
+    MeterDAW,
+    MeterMusic,
+    MeterVoice,
+    MeterRevX,
+    MeterMain,
+    MeterGroupCount
+};
+
+struct MeterRoute
+{
+    int left;
+    int right;
+};
+
+// -1 означает, что индекс ещё не определён.
+// Строки соответствуют Mix 1, Mix 2, Mix 3.
+// Столбцы: DAW, Music, Voice, REV-X, Main.
+
+constexpr MeterRoute kMeterRouting[3][MeterGroupCount] = {
+    {
+        { 6,  7},  // Mix 1: DAW
+        {54, 55},  // Mix 1: Music
+        {56, 57},  // Mix 1: Voice
+        {30, 31},  // Mix 1: REV-X
+        {10, 11}   // Mix 1: Main
+    },
+    {
+        {-1, -1},  // Mix 2: DAW
+        {-1, -1},  // Mix 2: Music
+        {-1, -1},  // Mix 2: Voice
+        {-1, -1},  // Mix 2: REV-X
+        {80, 81}   // Mix 2: Main
+    },
+    {
+        { 6,  7},  // Mix 3: DAW
+        {54, 55},  // Mix 3: Music
+        {56, 57},  // Mix 3: Voice
+        {30, 31},  // Mix 3: REV-X
+        {52, 53}   // Mix 3: Main
+    }
+};
 
 constexpr const char* kConfigPath = "./devices.ini";
 constexpr const char* kLastsPath = "./lasts";
@@ -20,6 +66,31 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Поддержание потока уровней звука
+    meterKeepaliveTimer.setInterval(2000);
+
+    connect(&meterKeepaliveTimer, &QTimer::timeout,
+            this, [this]()
+            {
+                if (!metersStarted)
+                    return;
+
+                urc_device* device = Device::get();
+
+                if (!device)
+                    return;
+
+                const int result = urc_send_keepalive(device);
+
+                if (result != URC_OK)
+                {
+                    qWarning() << "Meter keepalive error:"
+                               << urc_strerror(result);
+
+                    stopMeters();
+                }
+            });
 
     statusBar()->showMessage(tr("Disconnected"));
 
@@ -59,6 +130,15 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if (reader)
+    {
+        reader->requestInterruption();
+        reader->wait();
+    }
+
+    stopMeters();
+    Device::close();
+
     delete ui;
 }
 
@@ -210,6 +290,7 @@ void MainWindow::disconnectDevice()
 
 void MainWindow::finishDisconnect()
 {
+    stopMeters();
     Device::close();
     disconnectRequested = false;
     ui->modelComboBox->setEnabled(true);
@@ -235,6 +316,12 @@ void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
     {
         const int inputsCount = ui->modelComboBox->currentData().toInt();
 
+        if (mix < 1 || mix > 3)
+            return;
+
+        auto& channels = meterChannels[mix - 1];
+        channels.clear();
+
         // Remove olds
         while(QLayoutItem* item = inputChannels->takeAt(0))
         {
@@ -253,6 +340,7 @@ void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
 
             MixerChannel* input = new MixerChannel(inputWidget);
             bind("InputMix", input, mix, i); // i channel (Zero based)
+            channels.append(input);
             inputGroup->addWidget(input, 1);
 
             QLabel* inputLabel = new QLabel(tr("Input %1").arg(i + 1), inputWidget);
@@ -403,6 +491,7 @@ void MainWindow::onInitialReadFinished()
     }
 
     ui->mixerTabs->setEnabled(true);
+    startMeters();
 }
 
 void MainWindow::on_mixerTabs_currentChanged(int index)
@@ -444,3 +533,176 @@ void MainWindow::updateHeadphonesMix()
     }
 }
 
+void MainWindow::meterCallback(const urc_message* message, const uint8_t* raw, size_t length, void* userData)
+{
+    if (!message
+    ||  !raw
+    ||  !userData
+    ||  message->type != URC_MSG_METER)
+        return;
+
+    MeterFrame levels{};
+
+    for (size_t i = 0; i < levels.size(); i++)
+        if (urc_meter_decode(raw, length, i, &levels[i]) != URC_OK)
+            return;
+
+    MainWindow* window = static_cast<MainWindow*>(userData);
+
+    QMetaObject::invokeMethod(
+        window,
+        [window, levels]()
+        {
+            if (!window->metersStarted)
+                return;
+
+            window->showMeterLevels(levels);
+        },
+        Qt::QueuedConnection
+    );
+}
+
+void MainWindow::showMeterLevel(int index, const urc_meter_level& level)
+{
+    for (auto& channels : meterChannels)
+    {
+        if (index < 0 || index >= channels.size())
+            continue;
+
+        if (channels[index])
+            channels[index]->setMeterLevels(level);
+    }
+}
+
+void MainWindow::startMeters()
+{
+    if (metersStarted || !Device::get())
+        return;
+
+    if (ui->modelComboBox->currentText() != QStringLiteral("UR22C"))
+        return;
+
+    urc_device* device = Device::get();
+
+    urc_set_callback(device, &MainWindow::meterCallback, this);
+
+    const int result = urc_meters_start(device);
+
+    if (result != URC_OK)
+    {
+        qWarning() << "Unable to start meters:"
+                   << urc_strerror(result);
+
+        urc_set_callback(device, nullptr, nullptr);
+        return;
+    }
+
+    metersStarted = true;
+    meterKeepaliveTimer.start();
+}
+
+void MainWindow::stopMeters()
+{
+    meterKeepaliveTimer.stop();
+
+    const bool wasStarted = metersStarted;
+    metersStarted = false;
+
+    urc_device* device = Device::get();
+
+    if (device)
+    {
+        urc_set_callback(device, nullptr, nullptr);
+
+        if (wasStarted)
+        {
+            const int result = urc_meters_stop(device);
+
+            if (result != URC_OK)
+                qWarning() << "Unable to stop meters:"
+                           << urc_strerror(result);
+        }
+    }
+
+    for (auto& channels : meterChannels)
+        for (const auto& channel : channels)
+            if (channel)
+                channel->resetMeter();
+
+    MixerChannel* channels[] = {
+        ui->DAW1, ui->DAW2, ui->DAW3,
+        ui->Music1, ui->Music2, ui->Music3,
+        ui->Voice1, ui->Voice2, ui->Voice3,
+        ui->REV_X1, ui->REV_X2, ui->REV_X3,
+        ui->Main1, ui->Main2, ui->Main3
+    };
+
+    for (MixerChannel* channel : channels)
+    {
+        if (channel)
+            channel->resetMeter();
+    }
+}
+
+void MainWindow::showMeterLevels(const MeterFrame& levels)
+{
+    // Физические входы, которые уже проверили.
+    showMeterLevel(0, levels[0]);
+    showMeterLevel(1, levels[1]);
+
+    // Существующие виджеты на трёх вкладках.
+    MixerChannel* channels[3][MeterGroupCount] = {
+        {
+            ui->DAW1,
+            ui->Music1,
+            ui->Voice1,
+            ui->REV_X1,
+            ui->Main1
+        },
+        {
+            ui->DAW2,
+            ui->Music2,
+            ui->Voice2,
+            ui->REV_X2,
+            ui->Main2
+        },
+        {
+            ui->DAW3,
+            ui->Music3,
+            ui->Voice3,
+            ui->REV_X3,
+            ui->Main3
+        }
+    };
+
+    for (int mix = 0; mix < 3; mix++)
+    {
+        for (int group = 0; group < MeterGroupCount; group++)
+        {
+            MixerChannel* channel = channels[mix][group];
+
+            if (!channel)
+                continue;
+
+            const MeterRoute& route = kMeterRouting[mix][group];
+
+            if (route.left < 0
+            ||  route.left >= URC_METER_SLOTS)
+                continue;
+
+            urc_meter_level level = levels[route.left];
+
+            if (route.right >= 0
+            &&  route.right < URC_METER_SLOTS)
+            {
+                const urc_meter_level& right = levels[route.right];
+
+                level.current = std::max(level.current, right.current);
+
+                level.peak = std::max(level.peak, right.peak);
+            }
+
+            channel->setMeterLevels(level);
+        }
+    }
+}

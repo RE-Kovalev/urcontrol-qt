@@ -1,6 +1,7 @@
 #include "mixerchannel.h"
 #include "ui_mixerchannel.h"
 
+#include <cmath>
 #include <QSignalBlocker>
 
 #include "device.h"
@@ -169,4 +170,20 @@ void MixerChannel::setPANValue(int32_t value)
 
     const QSignalBlocker blocker(ui->PAN);
     ui->PAN->setValue(value);
+}
+
+void MixerChannel::setMeterLevels(const urc_meter_level& level)
+{
+    const float currentDb = level.current / 10.0f;
+    const float peakDb = level.peak / 10.0f;
+
+    const float current = std::pow(10.0f, currentDb / 20.0f);
+    const float peak = std::pow(10.0f, peakDb / 20.0f);
+
+    ui->levelMeter->setLevels(current, peak);
+}
+
+void MixerChannel::resetMeter()
+{
+    ui->levelMeter->setLevels(0.0f, 0.0f);
 }

@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include <QPointer>
 #include <QHBoxLayout>
+#include <QTimer>
+#include <QVector>
+#include <array>
 
 #include <urcontrol.h>
 
@@ -41,6 +44,8 @@ private:
     Ui::MainWindow *ui;
     bool initialization = true;
 
+    using MeterFrame = std::array<urc_meter_level, URC_METER_SLOTS>;
+
     // This registry is independent of the actual Qt widget type and is easily
     // extendable: additional parameter groups can reuse the same read engine.
     struct ParameterBinding
@@ -59,6 +64,11 @@ private:
     int readSucceeded = 0;
     int readFailed = 0;
 
+    QTimer meterKeepaliveTimer;
+    bool metersStarted = false;
+
+    QVector<QPointer<MixerChannel>> meterChannels[3];
+
     bool loadModels();
     void restoreLastSelection();
     void loadAutoConnect(const QString& model);
@@ -76,5 +86,12 @@ private:
     void onInitialReadFinished();
     void finishDisconnect();
     void updateHeadphonesMix();
+
+    void startMeters();
+    void stopMeters();
+
+    void showMeterLevels(const MeterFrame& levels);
+    void showMeterLevel(int index, const urc_meter_level& level);
+    static void meterCallback(const urc_message* message, const uint8_t* raw, size_t length, void* userData);
 };
 #endif // MAINWINDOW_H
