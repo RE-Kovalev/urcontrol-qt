@@ -75,6 +75,7 @@ private:
     QVector<QPointer<MixerChannel>> meterChannels[3];
 
     bool loadModels();
+    bool hasMix1Knob() const;
     void restoreLastSelection();
     void loadAutoConnect(const QString& model);
     void refreshPorts();

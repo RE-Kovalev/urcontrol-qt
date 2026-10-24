@@ -53,6 +53,7 @@ constexpr const char* kConfigPath = "./devices.ini";
 constexpr const char* kLastsPath = "./lasts";
 constexpr int kMaxInputs = 6;
 constexpr int kInitialReadTimeoutMs = 700;
+constexpr int kMix1KnobRole = Qt::UserRole + 1;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -103,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
     bind("ReverbMix", ui->REV_X3, 3);
     bind("MainMix", ui->Main3, 3);
 
-    ui->DAW1->setFaderDisabled(true); // Disable fader for mix1
+    ui->DAW1->setFaderDisabled(hasMix1Knob()); // Disable fader for mix1
 
     initialization = false;
     if (!result)
@@ -158,9 +159,20 @@ bool MainWindow::loadModels()
         settings.beginGroup(settings.childGroups().at(i));
         bool valid = false;
         const int inputs = settings.value("Inputs").toInt(&valid);
+        const bool mix1Knob = settings.value("Mix1Knob", false).toBool();
+
         settings.endGroup();
+
         if (valid && inputs > 0 && inputs <= kMaxInputs)
-            ui->modelComboBox->addItem(settings.childGroups().at(i), inputs);
+        {
+            const QString model = settings.childGroups().at(i);
+
+            ui->modelComboBox->addItem(model, inputs);
+
+            const int index = ui->modelComboBox->count() - 1;
+
+            ui->modelComboBox->setItemData(index, mix1Knob, kMix1KnobRole);
+        }
 
     }
 
@@ -228,6 +240,9 @@ void MainWindow::on_modelComboBox_currentTextChanged(const QString &arg1)
 {
     updateMixerInputs(ui->inputChannels1, 1);
     updateMixerInputs(ui->inputChannels3, 3);
+
+    ui->DAW1->setFaderDisabled(hasMix1Knob());
+
     saveLastSelection();
 }
 
@@ -365,7 +380,7 @@ void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
             inputChannels->addWidget(inputWidget);
 
             if (mix == 1)
-                input->setFaderDisabled(true); // Disable fader for mix1
+                input->setFaderDisabled(hasMix1Knob()); // Disable fader for physical mix 1 knob
         }
     }
 }
@@ -458,6 +473,10 @@ void MainWindow::readInitialParameters()
         return;
     }
 
+    // Hardware MIX knob: UR22C
+    if (hasMix1Knob())
+        requests.push_back({352, 0});
+
     reader = new ParameterReader(requests, kInitialReadTimeoutMs, this);
     connect(reader, &ParameterReader::parameterRead, this, &MainWindow::onParameterRead);
     connect(reader, &QThread::finished, this, &MainWindow::onInitialReadFinished);
@@ -470,8 +489,32 @@ void MainWindow::onParameterRead(int index, int result, int value)
 {
     // All values arrive in the GUI thread via queued Qt signals.
     if (index < 0
-    ||  index >= bindings.size()
     ||  disconnectRequested)
+        return;
+
+    if (hasMix1Knob()  && index == bindings.size())
+    {
+        if (result == URC_OK)
+        {
+            readSucceeded++;
+            applyIncomingParameter(352, 0, value);
+
+            qDebug() << "Initial hardware MIX:" << value;
+        }
+        else
+        {
+            readFailed++;
+            qWarning() << "Unable to read hardware MIX:"
+                       << urc_strerror(result);
+
+            if (result == URC_ERR_CLOSED)
+                disconnectRequested = true;
+        }
+
+        return;
+    }
+
+    if (index >= bindings.size())
         return;
 
     const ParameterBinding &binding = bindings.at(index);
@@ -492,6 +535,7 @@ void MainWindow::onParameterRead(int index, int result, int value)
                              << "channel" << static_cast<int>(binding.channel)
                              << "error" << result << urc_strerror(result);
     }
+
 }
 
 void MainWindow::onInitialReadFinished()
@@ -764,6 +808,10 @@ void MainWindow::applyIncomingParameter(uint16_t id, uint8_t channel, int32_t va
     if (id == 352
     &&  channel == 0)
     {
+        // Ignore hardware MIX for devices without Mix1Knob
+        if (!hasMix1Knob())
+            return;
+
         const int mix = std::clamp<int>(value, -63, 63);
 
         // 103 = 0 dB, 0 = -inf dB.
@@ -889,4 +937,9 @@ void MainWindow::pollSoloMute()
     connect(poller, &QThread::finished, poller, &QObject::deleteLater);
 
     poller->start();
+}
+
+bool MainWindow::hasMix1Knob() const
+{
+    return ui->modelComboBox->currentData(kMix1KnobRole).toBool();
 }
