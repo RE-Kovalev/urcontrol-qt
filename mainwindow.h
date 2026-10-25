@@ -83,6 +83,7 @@ private:
     void connectDevice();
     void disconnectDevice();
     void updateMixerInputs(QHBoxLayout* inputChannels, int mix);
+    void updateMixerRevs(QHBoxLayout* inputChannels, int mix);
     void bind(const char* paramGroupName, MixerChannel* mixerChannel, int mix = 1, int channel = 0);
 
     bool bindParameter(MixerChannel* mixerChannel, const QString &name, MixerChannel::Control control, uint8_t channel);

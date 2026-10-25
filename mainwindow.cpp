@@ -11,6 +11,7 @@
 
 #include "midiport.h"
 #include "device.h"
+#include "audioknob.h"
 
 enum MeterGroup
 {
@@ -113,6 +114,8 @@ MainWindow::MainWindow(QWidget *parent)
     {
         updateMixerInputs(ui->inputChannels1, 1);
         updateMixerInputs(ui->inputChannels3, 3);
+        updateMixerRevs(ui->inputRev1, 1);
+        updateMixerRevs(ui->inputRev3, 3);
         if (ui->autoconnect->isChecked())
             connectDevice();
     }
@@ -240,6 +243,8 @@ void MainWindow::on_modelComboBox_currentTextChanged(const QString &arg1)
 {
     updateMixerInputs(ui->inputChannels1, 1);
     updateMixerInputs(ui->inputChannels3, 3);
+    updateMixerRevs(ui->inputRev1, 1);
+    updateMixerRevs(ui->inputRev3, 3);
 
     ui->DAW1->setFaderDisabled(hasMix1Knob());
 
@@ -334,6 +339,46 @@ void MainWindow::on_connectButton_released()
         disconnectDevice();
     else
         connectDevice();
+}
+
+void MainWindow::updateMixerRevs(QHBoxLayout* inputChannels, int mix)
+{
+    if (!initialization)
+    {
+        const int inputsCount = ui->modelComboBox->currentData().toInt();
+
+        if (mix < 1 || mix > 3)
+            return;
+
+        // Remove olds
+        while(QLayoutItem* item = inputChannels->takeAt(0))
+        {
+            if(QWidget* widget = item->widget())
+            {
+                delete widget;
+            }
+
+            delete item;
+        }
+        // Create new
+        for (size_t i = 0; i < inputsCount; i++)
+        {
+            QWidget* inputWidget = new QWidget();
+            QVBoxLayout* inputGroup = new QVBoxLayout(inputWidget);
+
+            AudioKnob* rev_knob = new AudioKnob(inputWidget);
+            inputGroup->addWidget(rev_knob, 1);
+
+            // QLabel* inputLabel = new QLabel(tr("Input %1").arg(i + 1), inputWidget);
+            // inputLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+            // inputGroup->addWidget(inputLabel, 0);
+
+            // inputGroup->setContentsMargins(0, 0, 0, 0);
+            // inputGroup->setSpacing(0);
+
+            inputChannels->addWidget(inputWidget);
+        }
+    }
 }
 
 void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
