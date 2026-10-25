@@ -9,10 +9,11 @@
 #include <array>
 
 #include <urcontrol.h>
-
 #include "mixerchannel.h"
 #include "parameterreader.h"
 #include "audioknob.h"
+
+class StreamingEffects;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -93,6 +94,9 @@ private:
     void disconnectDevice();
     void updateMixerInputs(QHBoxLayout* inputChannels, int mix);
     void updateMixerRevs(QHBoxLayout* inputChannels, int mix);
+    void updateStreamingEffects(QHBoxLayout* inputChannels, int mix);
+    void configureStaticStreamingEffects();
+    void bindStreamingEffect(StreamingEffects* effect, const char* enabledName, const char* typeName, uint8_t channel);
     void bind(const char* paramGroupName, MixerChannel* mixerChannel, int mix = 1, int channel = 0);
 
     bool bindParameter(MixerChannel* mixerChannel, const QString &name, MixerChannel::Control control, uint8_t channel);
@@ -112,5 +116,7 @@ private:
     static void midiCallback(const urc_message* message, const uint8_t* raw, size_t length, void* userData);
 
     void applyIncomingParameter(uint16_t id, uint8_t channel, int32_t value);
+
+    void hideRetainSizeW(QWidget* widget);
 };
 #endif // MAINWINDOW_H

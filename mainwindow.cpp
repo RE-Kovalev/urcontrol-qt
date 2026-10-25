@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "streamingeffects.h"
 #include "./ui_mainwindow.h"
 
 #include <QSettings>
@@ -107,18 +108,12 @@ MainWindow::MainWindow(QWidget *parent)
     bind("MainMix", ui->Main3, 3);
 
     bindReverbOutput();
+    configureStaticStreamingEffects();
 
     ui->DAW1->setFaderDisabled(hasMix1Knob()); // Disable fader for mix1
 
-    QSizePolicy policy = ui->REV_XSE1->sizePolicy();
-    policy.setRetainSizeWhenHidden(true);
-    ui->REV_XSE1->setSizePolicy(policy);
-    ui->REV_XSE1->setVisible(false); // Disable Streaming effets for REV-X
+    hideRetainSizeW(ui->REV_XSE3); // Disable Streaming effets for REV-X
 
-    policy = ui->REV_XSE3->sizePolicy();
-    policy.setRetainSizeWhenHidden(true);
-    ui->REV_XSE3->setSizePolicy(policy);
-    ui->REV_XSE3->setVisible(false); // Disable Streaming effets for REV-X
 
     initialization = false;
     if (!result)
@@ -127,6 +122,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         updateMixerInputs(ui->inputChannels1, 1);
         updateMixerInputs(ui->inputChannels3, 3);
+        updateStreamingEffects(ui->inputStreamingEffects3Area, 3);
         updateMixerRevs(ui->inputRev1, 1);
         updateMixerRevs(ui->inputRev3, 3);
         if (ui->autoconnect->isChecked())
@@ -256,6 +252,7 @@ void MainWindow::on_modelComboBox_currentTextChanged(const QString &arg1)
 {
     updateMixerInputs(ui->inputChannels1, 1);
     updateMixerInputs(ui->inputChannels3, 3);
+    updateStreamingEffects(ui->inputStreamingEffects3Area, 3);
     updateMixerRevs(ui->inputRev1, 1);
     updateMixerRevs(ui->inputRev3, 3);
 
@@ -466,6 +463,154 @@ void MainWindow::updateMixerRevs(QHBoxLayout* inputChannels, int mix)
     }
 
     updateReverbKnobsEnabled();
+}
+
+void MainWindow::bindStreamingEffect(StreamingEffects* effect,
+                                     const char* enabledName,
+                                     const char* typeName,
+                                     uint8_t channel)
+{
+    if (!effect)
+        return;
+
+    const urc_parameter* enabledParam = urc_find_parameter("mixer", enabledName);
+    const urc_parameter* typeParam = urc_find_parameter("mixer", typeName);
+    const bool available = enabledParam && typeParam;
+    effect->setEffectAvailable(available);
+    if (!available)
+        return;
+
+    const QPointer<StreamingEffects> target(effect);
+
+    registerBinding(enabledParam, channel, effect,
+                    [target](int32_t value)
+                    {
+                        if (target)
+                            target->setEffectEnabled(value != 0);
+                    }
+                );
+    registerBinding(typeParam, channel, effect,
+                    [target](int32_t value)
+                    {
+                        if (target)
+                            target->setEffectType(value);
+                    }
+                );
+
+    connect(effect, &StreamingEffects::effectEnabledChanged, this,
+            [this, target, enabledParam, channel](bool checked)
+            {
+                if (!target)
+                    return;
+                urc_device* device = Device::get();
+                if (!device 
+                ||  disconnectRequested 
+                ||  reader)
+                {
+                    target->setEffectEnabled(target->confirmedEffectEnabled());
+                    return;
+                }
+
+                const int result = urc_change_parameter(device, enabledParam->id, checked ? 1 : 0, channel);
+                if (result != URC_OK)
+                {
+                    qWarning() << "Streaming effect Enable:" << enabledParam->name
+                               << "channel" << channel << urc_strerror(result);
+
+                    target->setEffectEnabled(target->confirmedEffectEnabled());
+                    return;
+                }
+
+                applyIncomingParameter(enabledParam->id, channel, checked ? 1 : 0);
+            }
+        );
+
+    connect(effect, &StreamingEffects::effectTypeChanged, this,
+            [this, target, typeParam, enabledName, channel](int type)
+            {
+                if (!target)
+                    return;
+                urc_device* device = Device::get();
+                if (!device 
+                ||  disconnectRequested 
+                ||  reader)
+                {
+                    target->setEffectType(target->confirmedEffectType());
+                    return;
+                }
+
+                const int result = urc_change_parameter(device, typeParam->id, type, channel);
+                if (result != URC_OK)
+                {
+                    qWarning() << "Streaming effect Type:" << typeParam->name
+                               << "channel" << channel << urc_strerror(result);
+                    target->setEffectType(target->confirmedEffectType());
+                    return;
+                }
+
+                applyIncomingParameter(typeParam->id, channel, type);
+
+                const urc_parameter* param = urc_find_parameter("mixer", enabledName);
+                if (param)
+                {
+                    const int queryResult = urc_query_parameter(device, param->id, channel);
+                    if (queryResult != URC_OK)
+                        qWarning() << "Streaming Enable readback:"
+                                   << urc_strerror(queryResult);
+                }
+            }
+        );
+}
+
+void MainWindow::configureStaticStreamingEffects()
+{
+    // PCFX3: channel 0 = DAW, 1 = Music, 2 = Voice.
+    const QStringList pcVariants = {tr("No Effect"), tr("Ducker")};
+    StreamingEffects* pcMix3[] = {ui->DAWSE3, ui->MusicSE3, ui->VoiceSE3};
+    for (uint8_t ch = 0; ch < 3; ++ch)
+    {
+        pcMix3[ch]->setVariants(pcVariants);
+        bindStreamingEffect(pcMix3[ch], "PCFX3Enabled", "PCFX3Type", ch);
+    }
+
+    // Final streaming-mix output: M.B.Comp.
+    ui->MainSE3->setVariants({tr("No Effect"), tr("M.B.Comp")});
+    bindStreamingEffect(ui->MainSE3, "MainMix3FXEnabled", "MainMix3FXType", 0);
+
+    // REV-X is not a Streaming Effect. It is hidden by the existing constructor.
+    ui->REV_XSE3->setVariants({tr("No Effect")});
+    ui->REV_XSE3->setEffectAvailable(false);
+}
+
+void MainWindow::updateStreamingEffects(QHBoxLayout* area, int mix)
+{
+    if (initialization || !area || (mix != 1 && mix != 3))
+        return;
+
+    while (QLayoutItem* item = area->takeAt(0))
+    {
+        delete item->widget();
+        delete item;
+    }
+
+    // Drop bindings for destroyed input widgets. Static widgets remain registered.
+    bindings.erase(std::remove_if(bindings.begin(), bindings.end(),
+                                  [](const ParameterBinding& binding)
+                                  {
+                                      return binding.target.isNull();
+                                  }),
+                   bindings.end());
+
+    const QStringList variants = {tr("No Effect"), tr("Gate"), tr("Comp")};
+    const int inputCount = ui->modelComboBox->currentData().toInt();
+    for (int input = 0; input < inputCount; ++input)
+    {
+        auto* effect = new StreamingEffects(area->parentWidget());
+        effect->setObjectName(QStringLiteral("InputSE%1_%2").arg(mix).arg(input + 1));
+        effect->setVariants(variants);
+        area->addWidget(effect);
+        bindStreamingEffect(effect, "InputFX3Enabled", "InputFX3Type", static_cast<uint8_t>(input));
+    }
 }
 
 void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
@@ -1211,4 +1356,12 @@ void MainWindow::updateReverbKnobsEnabled()
     for (const auto& knob : reverbKnobs[2])
         if (knob)
             knob->setEnabled(mix3Enabled);
+}
+
+void MainWindow::hideRetainSizeW(QWidget* widget)
+{
+    QSizePolicy policy = widget->sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    widget->setSizePolicy(policy);
+    widget->setVisible(false);
 }
