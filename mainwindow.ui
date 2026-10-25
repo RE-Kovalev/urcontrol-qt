@@ -85,7 +85,7 @@
        <bool>false</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="mixer1Area">
        <attribute name="title">
@@ -106,7 +106,14 @@
              <height>557</height>
             </rect>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0">
+           <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0">
+            <item>
+             <widget class="QLabel" name="REV_X1Label">
+              <property name="text">
+               <string>REV-X</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <layout class="QHBoxLayout" name="mixer1RevArea" stretch="0,1">
               <item>
@@ -152,6 +159,13 @@
                </layout>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="ChannelMixer1Label">
+              <property name="text">
+               <string>Channel mix</string>
+              </property>
+             </widget>
             </item>
             <item>
              <layout class="QHBoxLayout" name="mixer1MixArea" stretch="0,1">
@@ -282,7 +296,14 @@
              <height>557</height>
             </rect>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
+           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0">
+            <item>
+             <widget class="QLabel" name="REV_X3Label">
+              <property name="text">
+               <string>REV-X</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <layout class="QHBoxLayout" name="mixer3RevArea" stretch="0,1">
               <item>
@@ -328,6 +349,13 @@
                </layout>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="ChannelMixer3Label">
+              <property name="text">
+               <string>Channel mixer</string>
+              </property>
+             </widget>
             </item>
             <item>
              <layout class="QHBoxLayout" name="mixer3MixArea" stretch="0,1">

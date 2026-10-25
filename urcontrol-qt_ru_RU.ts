@@ -40,44 +40,56 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="268"/>
+        <location filename="mainwindow.ui" line="166"/>
+        <source>Channel mix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="282"/>
         <source>Mix3</source>
         <oldsource>Mix2</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="141"/>
-        <location filename="mainwindow.ui" line="317"/>
+        <location filename="mainwindow.ui" line="356"/>
+        <source>Channel mixer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="148"/>
+        <location filename="mainwindow.ui" line="338"/>
         <source>REV-X Send</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="175"/>
-        <location filename="mainwindow.ui" line="347"/>
+        <location filename="mainwindow.ui" line="189"/>
+        <location filename="mainwindow.ui" line="375"/>
         <source>DAW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="192"/>
-        <location filename="mainwindow.ui" line="364"/>
+        <location filename="mainwindow.ui" line="206"/>
+        <location filename="mainwindow.ui" line="392"/>
         <source>Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="209"/>
-        <location filename="mainwindow.ui" line="381"/>
+        <location filename="mainwindow.ui" line="223"/>
+        <location filename="mainwindow.ui" line="409"/>
         <source>Voice</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="230"/>
-        <location filename="mainwindow.ui" line="398"/>
+        <location filename="mainwindow.ui" line="113"/>
+        <location filename="mainwindow.ui" line="244"/>
+        <location filename="mainwindow.ui" line="303"/>
+        <location filename="mainwindow.ui" line="426"/>
         <source>REV-X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="247"/>
-        <location filename="mainwindow.ui" line="415"/>
+        <location filename="mainwindow.ui" line="261"/>
+        <location filename="mainwindow.ui" line="443"/>
         <source>Main</source>
         <translation type="unfinished"></translation>
     </message>
