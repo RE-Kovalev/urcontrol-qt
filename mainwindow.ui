@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>870</width>
-    <height>684</height>
+    <width>871</width>
+    <height>835</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -102,11 +102,51 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>557</height>
+             <width>829</width>
+             <height>708</height>
             </rect>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0">
+           <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0,0,0">
+            <item>
+             <widget class="QLabel" name="SteamingEffects1Label">
+              <property name="text">
+               <string>Streaming effects</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="streamingEffects1Area" stretch="0,1">
+              <item>
+               <layout class="QHBoxLayout" name="inputStreamingEffects1Area">
+                <item>
+                 <widget class="StreamingEffects" name="widget_5" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="widget_6" native="true"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="otherStreamingEffects1Area" stretch="0,0,0,0,0">
+                <item>
+                 <widget class="StreamingEffects" name="DAWSE1" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="MusicSE1" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="VoiceSE1" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="REV_XSE1" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="MainSE1" native="true"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
             <item>
              <widget class="QLabel" name="REV_X1Label">
               <property name="text">
@@ -292,11 +332,51 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>557</height>
+             <width>829</width>
+             <height>708</height>
             </rect>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0">
+           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0">
+            <item>
+             <widget class="QLabel" name="SteamingEffects3Label">
+              <property name="text">
+               <string>Streaming effects</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="streamingEffects3Area" stretch="0,1">
+              <item>
+               <layout class="QHBoxLayout" name="inputStreamingEffects3Area">
+                <item>
+                 <widget class="StreamingEffects" name="widget_9" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="widget_8" native="true"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="otherStreamingEffects3Area">
+                <item>
+                 <widget class="StreamingEffects" name="DAWSE3" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="MusicSE3" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="VoiceSE3" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="REV_XSE3" native="true"/>
+                </item>
+                <item>
+                 <widget class="StreamingEffects" name="MainSE3" native="true"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
             <item>
              <widget class="QLabel" name="REV_X3Label">
               <property name="text">
@@ -470,6 +550,12 @@
    <class>MixerChannel</class>
    <extends>QWidget</extends>
    <header>mixerchannel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StreamingEffects</class>
+   <extends>QWidget</extends>
+   <header>streamingeffects.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -110,6 +110,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->DAW1->setFaderDisabled(hasMix1Knob()); // Disable fader for mix1
 
+    QSizePolicy policy = ui->REV_XSE1->sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    ui->REV_XSE1->setSizePolicy(policy);
+    ui->REV_XSE1->setVisible(false); // Disable Streaming effets for REV-X
+
+    policy = ui->REV_XSE3->sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    ui->REV_XSE3->setSizePolicy(policy);
+    ui->REV_XSE3->setVisible(false); // Disable Streaming effets for REV-X
+
     initialization = false;
     if (!result)
         ui->connectButton->setDisabled(true);

@@ -30,7 +30,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="76"/>
-        <location filename="mainwindow.cpp" line="335"/>
+        <location filename="mainwindow.cpp" line="345"/>
         <source>Connect</source>
         <translation type="unfinished">Подключиться</translation>
     </message>
@@ -40,109 +40,116 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="166"/>
+        <location filename="mainwindow.ui" line="113"/>
+        <location filename="mainwindow.ui" line="343"/>
+        <source>Streaming effects</source>
+        <oldsource>Streaming effetcs</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="206"/>
         <source>Channel mix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="282"/>
+        <location filename="mainwindow.ui" line="322"/>
         <source>Mix3</source>
         <oldsource>Mix2</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="356"/>
+        <location filename="mainwindow.ui" line="436"/>
         <source>Channel mixer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="148"/>
-        <location filename="mainwindow.ui" line="338"/>
+        <location filename="mainwindow.ui" line="188"/>
+        <location filename="mainwindow.ui" line="418"/>
         <source>REV-X Send</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="189"/>
-        <location filename="mainwindow.ui" line="375"/>
+        <location filename="mainwindow.ui" line="229"/>
+        <location filename="mainwindow.ui" line="455"/>
         <source>DAW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="206"/>
-        <location filename="mainwindow.ui" line="392"/>
+        <location filename="mainwindow.ui" line="246"/>
+        <location filename="mainwindow.ui" line="472"/>
         <source>Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="223"/>
-        <location filename="mainwindow.ui" line="409"/>
+        <location filename="mainwindow.ui" line="263"/>
+        <location filename="mainwindow.ui" line="489"/>
         <source>Voice</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="113"/>
-        <location filename="mainwindow.ui" line="244"/>
-        <location filename="mainwindow.ui" line="303"/>
-        <location filename="mainwindow.ui" line="426"/>
+        <location filename="mainwindow.ui" line="153"/>
+        <location filename="mainwindow.ui" line="284"/>
+        <location filename="mainwindow.ui" line="383"/>
+        <location filename="mainwindow.ui" line="506"/>
         <source>REV-X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="261"/>
-        <location filename="mainwindow.ui" line="443"/>
+        <location filename="mainwindow.ui" line="301"/>
+        <location filename="mainwindow.ui" line="523"/>
         <source>Main</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="92"/>
-        <location filename="mainwindow.cpp" line="336"/>
+        <location filename="mainwindow.cpp" line="346"/>
         <source>Disconnected</source>
         <translation type="unfinished">Отключено</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="155"/>
-        <location filename="mainwindow.cpp" line="160"/>
+        <location filename="mainwindow.cpp" line="165"/>
+        <location filename="mainwindow.cpp" line="170"/>
         <source>Devices configuration</source>
         <translation type="unfinished">Конфигурации устройств</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="155"/>
+        <location filename="mainwindow.cpp" line="165"/>
         <source>File ./devices.ini don&apos;t exists</source>
         <translation type="unfinished">Файл ./devices.ini не существует</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="160"/>
+        <location filename="mainwindow.cpp" line="170"/>
         <source>Devices is not found in ./devices.ini</source>
         <translation type="unfinished">В файле ./devices.ini не найдены устройства</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="282"/>
-        <location filename="mainwindow.cpp" line="283"/>
+        <location filename="mainwindow.cpp" line="292"/>
+        <location filename="mainwindow.cpp" line="293"/>
         <source>Connection error</source>
         <translation type="unfinished">Ошибка подключения</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="291"/>
+        <location filename="mainwindow.cpp" line="301"/>
         <source>Disconnect</source>
         <translation type="unfinished">Отключиться</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="292"/>
+        <location filename="mainwindow.cpp" line="302"/>
         <source>Connected: </source>
         <translation type="unfinished">Подключено: </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="311"/>
+        <location filename="mainwindow.cpp" line="321"/>
         <source>Stopping parameter read...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="508"/>
+        <location filename="mainwindow.cpp" line="518"/>
         <source>Input %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="607"/>
+        <location filename="mainwindow.cpp" line="617"/>
         <source>Connected: no parameters to read</source>
         <translation type="unfinished"></translation>
     </message>
@@ -162,6 +169,24 @@
     <message>
         <location filename="mixerchannel.ui" line="57"/>
         <source>Solo</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StreamingEffects</name>
+    <message>
+        <location filename="streamingeffects.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="streamingeffects.ui" line="38"/>
+        <source>E</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="streamingeffects.ui" line="48"/>
+        <source>None</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
