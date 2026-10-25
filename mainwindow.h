@@ -12,6 +12,7 @@
 
 #include "mixerchannel.h"
 #include "parameterreader.h"
+#include "audioknob.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -74,6 +75,14 @@ private:
 
     QVector<QPointer<MixerChannel>> meterChannels[3];
 
+    QVector<QPointer<AudioKnob>> reverbKnobs[3];
+
+    int reverbOutputValue = -1;
+
+    void setReverbOutputValue(int32_t value);
+    void setInputReverbSendValue(int input, int32_t value);
+    void bindReverbOutput();
+
     bool loadModels();
     bool hasMix1Knob() const;
     void restoreLastSelection();
@@ -93,6 +102,7 @@ private:
     void onInitialReadFinished();
     void finishDisconnect();
     void updateHeadphonesMix();
+    void updateReverbKnobsEnabled();
 
     void startMeters();
     void stopMeters();

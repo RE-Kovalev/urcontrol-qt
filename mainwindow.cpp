@@ -8,10 +8,11 @@
 #include <QMetaObject>
 #include <QDebug>
 #include <algorithm>
+#include <QCheckBox>
+#include <QSignalBlocker>
 
 #include "midiport.h"
 #include "device.h"
-#include "audioknob.h"
 
 enum MeterGroup
 {
@@ -104,6 +105,8 @@ MainWindow::MainWindow(QWidget *parent)
     bind("MusicMix", ui->Voice3, 3, 1); // Voice on channel 2 (1 in lib - zero based) for MusicMMixI
     bind("ReverbMix", ui->REV_X3, 3);
     bind("MainMix", ui->Main3, 3);
+
+    bindReverbOutput();
 
     ui->DAW1->setFaderDisabled(hasMix1Knob()); // Disable fader for mix1
 
@@ -343,42 +346,116 @@ void MainWindow::on_connectButton_released()
 
 void MainWindow::updateMixerRevs(QHBoxLayout* inputChannels, int mix)
 {
-    if (!initialization)
+    if (initialization
+    || !inputChannels)
+        return;
+
+    if (mix < 1 || mix > 3)
+        return;
+
+    const int inputsCount = ui->modelComboBox->currentData().toInt();
+
+    auto& knobs = reverbKnobs[mix - 1];
+
+    knobs.clear();
+
+    while (QLayoutItem* item = inputChannels->takeAt(0))
     {
-        const int inputsCount = ui->modelComboBox->currentData().toInt();
-
-        if (mix < 1 || mix > 3)
-            return;
-
-        // Remove olds
-        while(QLayoutItem* item = inputChannels->takeAt(0))
-        {
-            if(QWidget* widget = item->widget())
-            {
-                delete widget;
-            }
-
-            delete item;
-        }
-        // Create new
-        for (size_t i = 0; i < inputsCount; i++)
-        {
-            QWidget* inputWidget = new QWidget();
-            QVBoxLayout* inputGroup = new QVBoxLayout(inputWidget);
-
-            AudioKnob* rev_knob = new AudioKnob(inputWidget);
-            inputGroup->addWidget(rev_knob, 1);
-
-            // QLabel* inputLabel = new QLabel(tr("Input %1").arg(i + 1), inputWidget);
-            // inputLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-            // inputGroup->addWidget(inputLabel, 0);
-
-            // inputGroup->setContentsMargins(0, 0, 0, 0);
-            // inputGroup->setSpacing(0);
-
-            inputChannels->addWidget(inputWidget);
-        }
+        delete item->widget();
+        delete item;
     }
+
+    const urc_parameter* parameter = urc_find_parameter("mixer", "InputReverbSend");
+
+    // Only one binding per physical input is required,
+    // even though the knob appears on two tabs.
+    if (mix == 1)
+        bindings.erase(
+            std::remove_if(
+                bindings.begin(),
+                bindings.end(),
+                [](const ParameterBinding& binding)
+                {
+                    return binding.unit == "mixer" && binding.name == "InputReverbSend";
+                }
+                ),
+            bindings.end()
+        );
+
+    for (int i = 0; i < inputsCount; ++i)
+    {
+        QWidget* inputWidget = new QWidget();
+
+        QHBoxLayout* inputGroup = new QHBoxLayout(inputWidget);
+
+        inputGroup->setContentsMargins(0, 0, 0, 0);
+        inputGroup->setSpacing(0);
+
+        AudioKnob* knob = new AudioKnob(inputWidget);
+
+        knobs.append(knob);
+
+        inputGroup->addWidget(knob, 0, Qt::AlignHCenter);
+
+        inputChannels->addWidget(inputWidget);
+
+        if (!parameter)
+        {
+            knob->setEnabled(false);
+            continue;
+        }
+
+        knob->setRange(parameter->minimum, parameter->maximum);
+
+        // GUI -> MIDI
+        connect(
+            knob,
+            &QDial::valueChanged,
+            this,
+            [this, parameter, i](int value)
+            {
+                urc_device* device = Device::get();
+
+                if (!device
+                ||  disconnectRequested
+                ||  reader)
+                    return;
+
+                const int result = urc_change_parameter(
+                    device,
+                    parameter->id,
+                    value,
+                    static_cast<uint8_t>(i)
+                    );
+
+                if (result != URC_OK)
+                {
+                    qWarning() << "InputReverbSend error:"
+                               << "input" << i + 1
+                               << urc_strerror(result);
+                    return;
+                }
+
+                // Keep both tabs synchronized.
+                setInputReverbSendValue(i, value);
+            }
+        );
+
+        // MIDI -> GUI
+        // Register only once for each physical input.
+        if (mix == 1)
+            registerBinding(
+                parameter,
+                static_cast<uint8_t>(i),
+                this,
+                [this, i](int32_t value)
+                {
+                    setInputReverbSendValue(i, value);
+                }
+            );
+    }
+
+    updateReverbKnobsEnabled();
 }
 
 void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
@@ -403,6 +480,19 @@ void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
 
             delete item;
         }
+
+        bindings.erase(
+            std::remove_if(
+                bindings.begin(),
+                bindings.end(),
+                [](const ParameterBinding& binding)
+                {
+                    return binding.target.isNull();
+                }
+                ),
+            bindings.end()
+        );
+
         // Create new
         for (size_t i = 0; i < inputsCount; i++)
         {
@@ -987,4 +1077,128 @@ void MainWindow::pollSoloMute()
 bool MainWindow::hasMix1Knob() const
 {
     return ui->modelComboBox->currentData(kMix1KnobRole).toBool();
+}
+
+void MainWindow::setReverbOutputValue(int32_t value)
+{
+    reverbOutputValue = value;
+
+    const QSignalBlocker block1(ui->REV_X1Send);
+    const QSignalBlocker block3(ui->REV_X3Send);
+
+    ui->REV_X1Send->setChecked(value == 0);
+    ui->REV_X3Send->setChecked(value == 4);
+
+    updateReverbKnobsEnabled();
+}
+
+void MainWindow::bindReverbOutput()
+{
+    const urc_parameter* parameter = urc_find_parameter("mixer", "ReverbOutput");
+
+    if (!parameter)
+    {
+        ui->REV_X1Send->setEnabled(false);
+        ui->REV_X3Send->setEnabled(false);
+        return;
+    }
+
+    registerBinding(
+        parameter,
+        0,
+        this,
+        [this](int32_t value)
+        {
+            setReverbOutputValue(value);
+        }
+    );
+
+    const auto selectOutput =
+        [this, parameter](int output, bool checked)
+    {
+        if (!checked)
+        {
+            setReverbOutputValue(reverbOutputValue);
+            return;
+        }
+
+        urc_device* device = Device::get();
+
+        if (!device
+        ||  disconnectRequested
+        ||  reader)
+        {
+            setReverbOutputValue(reverbOutputValue);
+            return;
+        }
+
+        const int result = urc_change_parameter(device, parameter->id, output, 0);
+
+        if (result != URC_OK)
+        {
+            qWarning() << "ReverbOutput error:"
+                       << urc_strerror(result);
+
+            setReverbOutputValue(reverbOutputValue);
+            return;
+        }
+
+        setReverbOutputValue(output);
+    };
+
+    connect(
+        ui->REV_X1Send,
+        &QCheckBox::clicked,
+        this,
+        [selectOutput](bool checked)
+        {
+            selectOutput(0, checked);
+        }
+    );
+
+    connect(
+        ui->REV_X3Send,
+        &QCheckBox::clicked,
+        this,
+        [selectOutput](bool checked)
+        {
+            selectOutput(4, checked);
+        }
+    );
+}
+
+void MainWindow::setInputReverbSendValue(int input, int32_t value)
+{
+    for (auto& knobs : reverbKnobs)
+    {
+        if (input < 0
+        ||  input >= knobs.size())
+            continue;
+
+        AudioKnob* knob = knobs[input];
+
+        if (!knob)
+            continue;
+
+        const QSignalBlocker blocker(knob);
+        knob->setValue(value);
+    }
+}
+
+void MainWindow::updateReverbKnobsEnabled()
+{
+    const bool mix1Enabled = reverbOutputValue == 0;
+    const bool mix3Enabled = reverbOutputValue == 4;
+
+    for (const auto& knob : reverbKnobs[0])
+        if (knob)
+            knob->setEnabled(mix1Enabled);
+
+    for (const auto& knob : reverbKnobs[1])
+        if (knob)
+            knob->setEnabled(mix3Enabled);
+
+    for (const auto& knob : reverbKnobs[2])
+        if (knob)
+            knob->setEnabled(mix3Enabled);
 }

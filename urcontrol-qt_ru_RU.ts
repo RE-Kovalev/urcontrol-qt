@@ -30,7 +30,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="76"/>
-        <location filename="mainwindow.cpp" line="332"/>
+        <location filename="mainwindow.cpp" line="335"/>
         <source>Connect</source>
         <translation type="unfinished">Подключиться</translation>
     </message>
@@ -82,55 +82,55 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="91"/>
-        <location filename="mainwindow.cpp" line="333"/>
+        <location filename="mainwindow.cpp" line="92"/>
+        <location filename="mainwindow.cpp" line="336"/>
         <source>Disconnected</source>
         <translation type="unfinished">Отключено</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="152"/>
-        <location filename="mainwindow.cpp" line="157"/>
+        <location filename="mainwindow.cpp" line="155"/>
+        <location filename="mainwindow.cpp" line="160"/>
         <source>Devices configuration</source>
         <translation type="unfinished">Конфигурации устройств</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="152"/>
+        <location filename="mainwindow.cpp" line="155"/>
         <source>File ./devices.ini don&apos;t exists</source>
         <translation type="unfinished">Файл ./devices.ini не существует</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="157"/>
+        <location filename="mainwindow.cpp" line="160"/>
         <source>Devices is not found in ./devices.ini</source>
         <translation type="unfinished">В файле ./devices.ini не найдены устройства</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="279"/>
-        <location filename="mainwindow.cpp" line="280"/>
+        <location filename="mainwindow.cpp" line="282"/>
+        <location filename="mainwindow.cpp" line="283"/>
         <source>Connection error</source>
         <translation type="unfinished">Ошибка подключения</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="288"/>
+        <location filename="mainwindow.cpp" line="291"/>
         <source>Disconnect</source>
         <translation type="unfinished">Отключиться</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="289"/>
+        <location filename="mainwindow.cpp" line="292"/>
         <source>Connected: </source>
         <translation type="unfinished">Подключено: </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="308"/>
+        <location filename="mainwindow.cpp" line="311"/>
         <source>Stopping parameter read...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="418"/>
+        <location filename="mainwindow.cpp" line="508"/>
         <source>Input %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="517"/>
+        <location filename="mainwindow.cpp" line="607"/>
         <source>Connected: no parameters to read</source>
         <translation type="unfinished"></translation>
     </message>
