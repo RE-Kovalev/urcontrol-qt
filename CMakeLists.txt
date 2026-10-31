@@ -79,6 +79,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         parameterreader.cpp
         parameterapplier.h parameterapplier.cpp
         streamingeffects.h streamingeffects.cpp streamingeffects.ui
+        gate.h gate.cpp gate.ui
+        compressor.h compressor.cpp compressor.ui
 
 
     )

@@ -3,6 +3,7 @@
 
 #include <QStringList>
 #include <QWidget>
+#include <QDialog>
 
 namespace Ui {
 class StreamingEffects;
@@ -35,6 +36,9 @@ private:
     int confirmedType = 0;
     bool confirmedEnabled = false;
     bool available = false;
+    int variantIndex = -1;
+
+    QDialog* edited = nullptr;
 };
 
 #endif // STREAMINGEFFECTS_H

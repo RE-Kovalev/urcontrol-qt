@@ -2,6 +2,127 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>Compressor</name>
+    <message>
+        <location filename="compressor.ui" line="14"/>
+        <source>Compressor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="22"/>
+        <source>3.00:1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="39"/>
+        <source>RELEASE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="53"/>
+        <location filename="compressor.ui" line="139"/>
+        <source>dB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="63"/>
+        <source>KNEE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="70"/>
+        <source>GAIN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="77"/>
+        <location filename="compressor.ui" line="108"/>
+        <source>ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="87"/>
+        <source>RATIO</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="94"/>
+        <source>THRESHOLD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="118"/>
+        <source>ATTACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="132"/>
+        <source>Auto makeup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="156"/>
+        <source>SOFT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="163"/>
+        <source>MEDIUM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="compressor.ui" line="170"/>
+        <source>HARD</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Gate</name>
+    <message>
+        <location filename="gate.ui" line="14"/>
+        <source>Gate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gate.ui" line="22"/>
+        <source>THRESHOLD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gate.ui" line="29"/>
+        <source>RANGE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gate.ui" line="36"/>
+        <source>ATTACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gate.ui" line="43"/>
+        <source>HOLD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gate.ui" line="50"/>
+        <source>DECAY</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gate.ui" line="92"/>
+        <location filename="gate.ui" line="102"/>
+        <source>dB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gate.ui" line="112"/>
+        <location filename="gate.ui" line="122"/>
+        <location filename="gate.ui" line="132"/>
+        <source>ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <location filename="mainwindow.ui" line="14"/>
@@ -217,6 +338,16 @@
     <message>
         <location filename="streamingeffects.ui" line="48"/>
         <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="streamingeffects.cpp" line="58"/>
+        <source>Gate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="streamingeffects.cpp" line="61"/>
+        <source>Comp</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

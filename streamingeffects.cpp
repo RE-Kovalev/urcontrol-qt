@@ -5,6 +5,9 @@
 #include <QComboBox>
 #include <QSignalBlocker>
 
+#include "gate.h"
+#include "compressor.h"
+
 StreamingEffects::StreamingEffects(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::StreamingEffects)
@@ -19,12 +22,53 @@ StreamingEffects::StreamingEffects(QWidget *parent)
                 if (index < 0)
                     return;
 
+                if (variantIndex != index)
+                {
+                    if (edited)
+                    {
+                        delete edited;
+                        edited = nullptr;
+                    }
+                    variantIndex = index;
+                }
+
+                ui->editButton->setEnabled(index);
+
                 const int type = ui->variants->itemData(index).toInt();
                 updateEnabledControl();
                 if (type == 0 && available)
                     emit effectTypeChanged(ui->variants->itemData(index).toInt());
 
                 emit effectTypeChanged(type);
+            }
+        );
+
+    connect(ui->editButton, &QPushButton::released,
+            this, [this]()
+            {
+                if (edited
+                &&  edited->isHidden())
+                {
+                    delete edited;
+                    edited = nullptr;
+                }
+
+                if (!edited)
+                {
+                    if (ui->variants->currentText() == tr("Gate"))
+                        edited = new Gate(this);
+                    else
+                    if (ui->variants->currentText() == tr("Comp"))
+                        edited = new Compressor(this);
+                    else
+                        return;
+                    edited->show();
+                }
+                else
+                {
+                    delete edited;
+                    edited = nullptr;
+                }
             }
         );
 
