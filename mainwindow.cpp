@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "streamingeffects.h"
+#include "gate.h"
+#include "compressor.h"
 #include "./ui_mainwindow.h"
 
 #include <QSettings>
@@ -58,6 +60,10 @@ constexpr int kMaxInputs = 6;
 constexpr int kInitialReadTimeoutMs = 700;
 constexpr int kMix1KnobRole = Qt::UserRole + 1;
 
+// Pending verification of streaming-effect level slots on UR22C
+constexpr int kInputGateMeters[kMaxInputs] = {74, 75, 76, 77, -1, -1};
+constexpr int kInputCompressorMeters[kMaxInputs] = {78, 79, 80, 81, -1, -1};
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -108,6 +114,7 @@ MainWindow::MainWindow(QWidget *parent)
     bind("MainMix", ui->Main3, 3);
 
     bindReverbOutput();
+
     configureStaticStreamingEffects();
 
     ui->DAW1->setFaderDisabled(hasMix1Knob()); // Disable fader for mix1
@@ -303,6 +310,9 @@ void MainWindow::connectDevice()
 void MainWindow::disconnectDevice()
 {
     controlPollTimer.stop();
+    for (StreamingEffects* effect : findChildren<StreamingEffects*>())
+        effect->closeEditor();
+
     disconnectRequested = true;
 
     if (reader)
@@ -465,10 +475,7 @@ void MainWindow::updateMixerRevs(QHBoxLayout* inputChannels, int mix)
     updateReverbKnobsEnabled();
 }
 
-void MainWindow::bindStreamingEffect(StreamingEffects* effect,
-                                     const char* enabledName,
-                                     const char* typeName,
-                                     uint8_t channel)
+void MainWindow::bindStreamingEffect(StreamingEffects* effect, const char* enabledName, const char* typeName, uint8_t channel)
 {
     if (!effect)
         return;
@@ -503,8 +510,8 @@ void MainWindow::bindStreamingEffect(StreamingEffects* effect,
                 if (!target)
                     return;
                 urc_device* device = Device::get();
-                if (!device 
-                ||  disconnectRequested 
+                if (!device
+                ||  disconnectRequested
                 ||  reader)
                 {
                     target->setEffectEnabled(target->confirmedEffectEnabled());
@@ -531,8 +538,8 @@ void MainWindow::bindStreamingEffect(StreamingEffects* effect,
                 if (!target)
                     return;
                 urc_device* device = Device::get();
-                if (!device 
-                ||  disconnectRequested 
+                if (!device
+                ||  disconnectRequested
                 ||  reader)
                 {
                     target->setEffectType(target->confirmedEffectType());
@@ -567,14 +574,17 @@ void MainWindow::configureStaticStreamingEffects()
     // PCFX3: channel 0 = DAW, 1 = Music, 2 = Voice.
     const QStringList pcVariants = {tr("No Effect"), tr("Ducker")};
     StreamingEffects* pcMix3[] = {ui->DAWSE3, ui->MusicSE3, ui->VoiceSE3};
+    const QStringList channelNames = {tr("DAW"), tr("Music"), tr("Voice")};
     for (uint8_t ch = 0; ch < 3; ++ch)
     {
         pcMix3[ch]->setVariants(pcVariants);
+        pcMix3[ch]->setChannel(ch, channelNames.at(ch));
         bindStreamingEffect(pcMix3[ch], "PCFX3Enabled", "PCFX3Type", ch);
     }
 
     // Final streaming-mix output: M.B.Comp.
     ui->MainSE3->setVariants({tr("No Effect"), tr("M.B.Comp")});
+    ui->MainSE3->setChannel(0, tr("Main"));
     bindStreamingEffect(ui->MainSE3, "MainMix3FXEnabled", "MainMix3FXType", 0);
 
     // REV-X is not a Streaming Effect. It is hidden by the existing constructor.
@@ -607,6 +617,21 @@ void MainWindow::updateStreamingEffects(QHBoxLayout* area, int mix)
     {
         auto* effect = new StreamingEffects(area->parentWidget());
         effect->setObjectName(QStringLiteral("InputSE%1_%2").arg(mix).arg(input + 1));
+        effect->setChannel(static_cast<uint8_t>(input), tr("Input %1").arg(input + 1));
+        effect->setMeterSlot(1, input < kMaxInputs ? kInputGateMeters[input] : -1);
+        effect->setMeterSlot(2, input < kMaxInputs ? kInputCompressorMeters[input] : -1);
+        effect->setEditorFactory([](int type, uint8_t channel, const QString& title, QWidget* parent) -> EffectEditor*
+        {
+            switch (type)
+            {
+            case 1:
+                return new Gate(channel, title, parent);
+            case 2:
+                return new Compressor(channel, title, parent);
+            default:
+                return nullptr;
+            }
+        });
         effect->setVariants(variants);
         area->addWidget(effect);
         bindStreamingEffect(effect, "InputFX3Enabled", "InputFX3Type", static_cast<uint8_t>(input));
@@ -1023,6 +1048,9 @@ void MainWindow::stopMeters()
             if (channel)
                 channel->resetMeter();
 
+    for (StreamingEffects* effect : findChildren<StreamingEffects*>())
+        effect->resetMeter();
+
     MixerChannel* channels[] = {
         ui->DAW1, ui->DAW3,
         ui->Music1, ui->Music3,
@@ -1090,6 +1118,14 @@ void MainWindow::showMeterLevels(const MeterFrame& levels)
             channel->setMeterLevels(level);
         }
     }
+
+    for (StreamingEffects* effect : findChildren<StreamingEffects*>())
+    {
+        const int slot = effect->effectMeterSlot();
+        if (slot >= 0 
+        &&  slot < URC_METER_SLOTS)
+            effect->setMeterLevels(levels[slot]);
+    }
 }
 
 void MainWindow::applyIncomingParameter(uint16_t id, uint8_t channel, int32_t value)
@@ -1132,6 +1168,9 @@ void MainWindow::applyIncomingParameter(uint16_t id, uint8_t channel, int32_t va
         return;
     }
 
+    for (StreamingEffects* effect : findChildren<StreamingEffects*>())
+        effect->applyIncomingParameter(id, channel, value);
+
     for (const ParameterBinding& binding : bindings)
     {
         if (binding.id != id
@@ -1142,7 +1181,7 @@ void MainWindow::applyIncomingParameter(uint16_t id, uint8_t channel, int32_t va
         binding.applyValue(value);
     }
 }
-
+ 
 void MainWindow::pollSoloMute()
 {
     if (!Device::get()

@@ -75,6 +75,11 @@
         <source>HARD</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="compressor.cpp" line="19"/>
+        <source>Compressor - %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Gate</name>
@@ -121,6 +126,11 @@
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="gate.cpp" line="15"/>
+        <source>Gate - %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -151,7 +161,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="76"/>
-        <location filename="mainwindow.cpp" line="342"/>
+        <location filename="mainwindow.cpp" line="352"/>
         <source>Connect</source>
         <translation type="unfinished">Подключиться</translation>
     </message>
@@ -196,18 +206,21 @@
     <message>
         <location filename="mainwindow.ui" line="196"/>
         <location filename="mainwindow.ui" line="415"/>
+        <location filename="mainwindow.cpp" line="577"/>
         <source>DAW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="213"/>
         <location filename="mainwindow.ui" line="432"/>
+        <location filename="mainwindow.cpp" line="577"/>
         <source>Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="230"/>
         <location filename="mainwindow.ui" line="449"/>
+        <location filename="mainwindow.cpp" line="577"/>
         <source>Voice</source>
         <translation type="unfinished"></translation>
     </message>
@@ -222,87 +235,89 @@
     <message>
         <location filename="mainwindow.ui" line="268"/>
         <location filename="mainwindow.ui" line="483"/>
+        <location filename="mainwindow.cpp" line="587"/>
         <source>Main</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="93"/>
-        <location filename="mainwindow.cpp" line="343"/>
+        <location filename="mainwindow.cpp" line="99"/>
+        <location filename="mainwindow.cpp" line="353"/>
         <source>Disconnected</source>
         <translation type="unfinished">Отключено</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="161"/>
-        <location filename="mainwindow.cpp" line="166"/>
+        <location filename="mainwindow.cpp" line="168"/>
+        <location filename="mainwindow.cpp" line="173"/>
         <source>Devices configuration</source>
         <translation type="unfinished">Конфигурации устройств</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="161"/>
+        <location filename="mainwindow.cpp" line="168"/>
         <source>File ./devices.ini don&apos;t exists</source>
         <translation type="unfinished">Файл ./devices.ini не существует</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="166"/>
+        <location filename="mainwindow.cpp" line="173"/>
         <source>Devices is not found in ./devices.ini</source>
         <translation type="unfinished">В файле ./devices.ini не найдены устройства</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="289"/>
-        <location filename="mainwindow.cpp" line="290"/>
+        <location filename="mainwindow.cpp" line="296"/>
+        <location filename="mainwindow.cpp" line="297"/>
         <source>Connection error</source>
         <translation type="unfinished">Ошибка подключения</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="298"/>
+        <location filename="mainwindow.cpp" line="305"/>
         <source>Disconnect</source>
         <translation type="unfinished">Отключиться</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="299"/>
+        <location filename="mainwindow.cpp" line="306"/>
         <source>Connected: </source>
         <translation type="unfinished">Подключено: </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="318"/>
+        <location filename="mainwindow.cpp" line="328"/>
         <source>Stopping parameter read...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="568"/>
-        <location filename="mainwindow.cpp" line="577"/>
-        <location filename="mainwindow.cpp" line="581"/>
-        <location filename="mainwindow.cpp" line="604"/>
+        <location filename="mainwindow.cpp" line="575"/>
+        <location filename="mainwindow.cpp" line="586"/>
+        <location filename="mainwindow.cpp" line="591"/>
+        <location filename="mainwindow.cpp" line="614"/>
         <source>No Effect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="568"/>
+        <location filename="mainwindow.cpp" line="575"/>
         <source>Ducker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="577"/>
+        <location filename="mainwindow.cpp" line="586"/>
         <source>M.B.Comp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="604"/>
+        <location filename="mainwindow.cpp" line="614"/>
         <source>Gate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="604"/>
+        <location filename="mainwindow.cpp" line="614"/>
         <source>Comp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="663"/>
+        <location filename="mainwindow.cpp" line="620"/>
+        <location filename="mainwindow.cpp" line="688"/>
         <source>Input %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="762"/>
+        <location filename="mainwindow.cpp" line="787"/>
         <source>Connected: no parameters to read</source>
         <translation type="unfinished"></translation>
     </message>
@@ -340,16 +355,6 @@
     <message>
         <location filename="streamingeffects.ui" line="48"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="streamingeffects.cpp" line="58"/>
-        <source>Gate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="streamingeffects.cpp" line="61"/>
-        <source>Comp</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

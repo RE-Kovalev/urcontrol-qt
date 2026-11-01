@@ -1,12 +1,12 @@
 #include "streamingeffects.h"
 #include "ui_streamingeffects.h"
+#include "effecteditor.h"
 
 #include <QCheckBox>
 #include <QComboBox>
 #include <QSignalBlocker>
-
-#include "gate.h"
-#include "compressor.h"
+#include <QPushButton>
+#include <utility>
 
 StreamingEffects::StreamingEffects(QWidget *parent)
     : QWidget(parent)
@@ -21,78 +21,96 @@ StreamingEffects::StreamingEffects(QWidget *parent)
             {
                 if (index < 0)
                     return;
-
                 if (variantIndex != index)
                 {
-                    if (edited)
-                    {
-                        delete edited;
-                        edited = nullptr;
-                    }
+                    closeEditor();
                     variantIndex = index;
                 }
 
-                ui->editButton->setEnabled(index);
-
-                const int type = ui->variants->itemData(index).toInt();
+                updateEditorButton();
                 updateEnabledControl();
-                if (type == 0 && available)
-                    emit effectTypeChanged(ui->variants->itemData(index).toInt());
-
-                emit effectTypeChanged(type);
+                emit effectTypeChanged(ui->variants->itemData(index).toInt());
             }
         );
-
     connect(ui->editButton, &QPushButton::released,
             this, [this]()
             {
-                if (edited
-                &&  edited->isHidden())
+                if (edited)
                 {
-                    delete edited;
-                    edited = nullptr;
+                    closeEditor();
+                    return;
                 }
 
-                if (!edited)
-                {
-                    if (ui->variants->currentText() == tr("Gate"))
-                        edited = new Gate(this);
-                    else
-                    if (ui->variants->currentText() == tr("Comp"))
-                        edited = new Compressor(this);
-                    else
-                        return;
-                    edited->show();
-                }
-                else
-                {
-                    delete edited;
-                    edited = nullptr;
-                }
+                if (!available 
+                ||  !editorFactory)
+                    return;
+
+                const int type = ui->variants->currentData().toInt();
+                EffectEditor* editor = editorFactory(type, protocolChannel, channelTitle, this);
+                if (!editor)
+                    return;
+
+                edited = editor;
+                edited->setAttribute(Qt::WA_DeleteOnClose);
+                edited->setModal(false);
+                edited->show();
             }
         );
-
     setEffectAvailable(false);
 }
 
 StreamingEffects::~StreamingEffects()
 {
+    closeEditor();
     delete ui;
+}
+
+void StreamingEffects::closeEditor()
+{
+    if (edited)
+    {
+        edited->close();
+        edited = nullptr;
+    }
+}
+
+void StreamingEffects::setChannel(uint8_t channel, const QString& channelName)
+{
+    if (protocolChannel != channel 
+    ||  channelTitle != channelName)
+        closeEditor();
+    protocolChannel = channel;
+    channelTitle = channelName;
+}
+
+void StreamingEffects::setEditorFactory(EditorFactory factory)
+{
+    closeEditor();
+    editorFactory = std::move(factory);
+    updateEditorButton();
+}
+
+void StreamingEffects::updateEditorButton()
+{
+    ui->editButton->setEnabled(available && editorFactory
+                               && ui->variants->currentData().toInt() != 0);
 }
 
 void StreamingEffects::setVariants(const QStringList& variants)
 {
+    closeEditor();
     const QSignalBlocker blocker(ui->variants);
     ui->variants->clear();
     for (int type = 0; type < variants.size(); type++)
         ui->variants->addItem(variants.at(type), type);
 
     confirmedType = 0;
-    if (ui->variants->count() != 0)
-        ui->variants->setCurrentIndex(0);
+    variantIndex = ui->variants->count() != 0 ? 0 : -1;
+    if (variantIndex >= 0)
+        ui->variants->setCurrentIndex(variantIndex);
     updateEnabledControl();
+    updateEditorButton();
 }
-
 void StreamingEffects::setEffectType(int type)
 {
     const int index = ui->variants->findData(type);
@@ -100,9 +118,15 @@ void StreamingEffects::setEffectType(int type)
         return;
 
     confirmedType = type;
+    if (variantIndex != index)
+    {
+        closeEditor();
+        variantIndex = index;
+    }
     const QSignalBlocker blocker(ui->variants);
     ui->variants->setCurrentIndex(index);
     updateEnabledControl();
+    updateEditorButton();
 }
 
 void StreamingEffects::setEffectEnabled(bool enabled)
@@ -111,12 +135,12 @@ void StreamingEffects::setEffectEnabled(bool enabled)
     const QSignalBlocker blocker(ui->enabled);
     ui->enabled->setChecked(enabled);
 }
-
 void StreamingEffects::setEffectAvailable(bool value)
 {
     available = value;
     ui->variants->setEnabled(available);
     updateEnabledControl();
+    updateEditorButton();
 }
 
 void StreamingEffects::updateEnabledControl()
@@ -129,6 +153,24 @@ void StreamingEffects::updateEnabledControl()
         ui->enabled->setChecked(false);
     }
 
-    ui->editButton->setEnabled(canEnable);
     ui->enabled->setEnabled(canEnable);
+}
+
+void StreamingEffects::applyIncomingParameter(uint16_t id, uint8_t channel, int32_t value)
+{
+    if (edited 
+    &&  channel == protocolChannel)
+        edited->applyIncomingParameter(id, value);
+}
+
+void StreamingEffects::setMeterLevels(const urc_meter_level& level)
+{
+    if (edited)
+        edited->setMeterLevels(level);
+}
+
+void StreamingEffects::resetMeter()
+{
+    if (edited)
+        edited->resetMeter();
 }
