@@ -12,6 +12,12 @@ URControl Qt - приложение на C++17 и Qt Widgets, которое в�
 
 ![Главное окно URControl Qt](Screenshots/MainWindow.ru.png)
 
+Главное окно URControl Qt
+
+![URControl Qt streaming effects](Screenshots/StreamingEffects.png)
+
+URControl Qt streaming effects
+
 ## Требования
 
 - Linux с ALSA и доступом к устройству RawMIDI аудиоинтерфейса.

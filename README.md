@@ -12,6 +12,12 @@ It provides a graphical front end for [urcontrol-c](https://github.com/RE-Kovale
 
 ![URControl Qt main window](Screenshots/MainWindow.png)
 
+URControl Qt main window
+
+![URControl Qt streaming effects](Screenshots/StreamingEffects.png)
+
+URControl Qt streaming effects
+
 ## Requirements
 
 - Linux with ALSA and access to the interface's RawMIDI device.
