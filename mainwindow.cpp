@@ -809,8 +809,7 @@ void MainWindow::updateMixerInputs(QHBoxLayout* inputChannels, int mix)
     }
 }
 
-void MainWindow::registerBinding(const urc_parameter *parameter, uint8_t channel,
-                                 QObject *target, std::function<void(int32_t)> applyValue)
+void MainWindow::registerBinding(const urc_parameter *parameter, uint8_t channel, QObject *target, std::function<void(int32_t)> applyValue)
 {
     if (!parameter
     ||  !target

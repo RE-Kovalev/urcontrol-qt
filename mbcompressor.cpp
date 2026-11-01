@@ -11,31 +11,97 @@
 
 namespace
 {
-    // The LOW/MID/HIGH display scale is documented by Yamaha as
-    // -inf, -60 dB to +18 dB. Raw codes 0..79 are an unverified
-    // inference and should be checked against the device.
-    constexpr EffectProtocol::Parameter low{330, 0, 79};
-    constexpr EffectProtocol::Parameter mid{331, 0, 79};
-    constexpr EffectProtocol::Parameter high{332, 0, 79};
+    constexpr EffectProtocol::Parameter low{330, 0, 56};
+    constexpr EffectProtocol::Parameter mid{335, 0, 56};
+    constexpr EffectProtocol::Parameter high{340, 0, 56};
     constexpr EffectProtocol::Parameter lm{342, 5, 96};
-    constexpr EffectProtocol::Parameter mh{343, 18, 108};
+    constexpr EffectProtocol::Parameter mh{343, 17, 108};
+
+    struct FrequencyPoint
+    {
+        int code;
+        double hertz;
+    };
+
+    // Measured UR22C crossover frequencies. M-H shares the scale from
+    // 42.5 Hz to 4 kHz, then continues to 8 kHz.
+    constexpr FrequencyPoint frequencyPoints[] = {
+        {5, 21.2}, {7, 23.6}, {8, 25.0}, {9, 26.5}, {10, 28.0},
+        {11, 30.0}, {12, 31.5}, {13, 33.5}, {15, 37.5}, {16, 40.0},
+        {17, 42.5}, {20, 50.0}, {21, 53.0}, {22, 56.0}, {23, 60.0},
+        {24, 63.0}, {25, 67.0}, {27, 75.0}, {28, 80.0}, {32, 100.0},
+        {33, 106.0}, {35, 118.0}, {36, 125.0}, {37, 132.0}, {38, 140.0},
+        {39, 150.0}, {44, 200.0}, {45, 212.0}, {47, 236.0}, {48, 250.0},
+        {49, 265.0}, {50, 280.0}, {51, 300.0}, {52, 315.0}, {53, 335.0},
+        {55, 375.0}, {56, 400.0}, {60, 500.0}, {61, 530.0}, {62, 560.0},
+        {63, 600.0}, {64, 630.0}, {65, 670.0}, {67, 750.0}, {68, 800.0},
+        {72, 1000.0}, {74, 1060.0}, {75, 1180.0}, {76, 1250.0},
+        {77, 1320.0}, {78, 1400.0}, {79, 1500.0}, {84, 2000.0},
+        {85, 2120.0}, {87, 2360.0}, {88, 2500.0}, {89, 2650.0},
+        {90, 2800.0}, {91, 3000.0}, {92, 3150.0}, {93, 3350.0},
+        {95, 3750.0}, {96, 4000.0}, {100, 5000.0}, {101, 5300.0},
+        {102, 5600.0}, {103, 6000.0}, {104, 6300.0}, {105, 6700.0},
+        {107, 7500.0}, {108, 8000.0}
+    };
+
+    QString displayFrequency(double hertz, bool approximate)
+    {
+        const QString prefix = approximate ? QStringLiteral("≈") : QString();
+        if (hertz >= 1000.0)
+            return QStringLiteral("%1%2 kHz").arg(prefix, QString::number(hertz / 1000.0, 'f', 2));
+        const int precision = hertz == std::floor(hertz) ? 0 : 1;
+        return QStringLiteral("%1%2 Hz").arg(prefix, QString::number(hertz, 'f', precision));
+    }
 
     QString frequencyValue(int32_t value, int minimum, int maximum,
                            double minimumHz, double maximumHz)
     {
-        if (value == minimum)
-            return QStringLiteral("%1 Hz").arg(QString::number(minimumHz, 'f', 1));
-        if (value == maximum)
-            return QStringLiteral("%1 kHz").arg(QString::number(maximumHz / 1000.0, 'f', 2));
-        if (value < minimum 
+        if (value < minimum
         ||  value > maximum)
             return QStringLiteral("raw %1").arg(value);
 
-        const double position = static_cast<double>(value - minimum) / (maximum - minimum);
-        const double frequency = minimumHz * std::pow(maximumHz / minimumHz, position);
-        if (frequency >= 1000.0)
-            return QStringLiteral("≈%1 kHz").arg(QString::number(frequency / 1000.0, 'f', 2));
-        return QStringLiteral("≈%1 Hz").arg(QString::number(frequency, 'f', 1));
+        if (value == minimum)
+            return displayFrequency(minimumHz, false);
+        if (value == maximum)
+            return displayFrequency(maximumHz, false);
+
+        for (const FrequencyPoint& point : frequencyPoints)
+            if (value == point.code)
+                return displayFrequency(point.hertz, false);
+
+        for (std::size_t index = 1; index < sizeof(frequencyPoints) / sizeof(frequencyPoints[0]); index++)
+        {
+            const FrequencyPoint& left = frequencyPoints[index - 1];
+            const FrequencyPoint& right = frequencyPoints[index];
+            if (value > left.code
+            &&  value < right.code)
+            {
+                const double t = static_cast<double>(value - left.code) / (right.code - left.code);
+                const double hertz = std::exp(std::log(left.hertz) + t * (std::log(right.hertz) - std::log(left.hertz)));
+                return displayFrequency(hertz, true);
+            }
+        }
+        return QStringLiteral("raw %1").arg(value);
+    }
+
+    QString gainValue(int32_t value)
+    {
+        if (value == 0)
+            return QStringLiteral("-inf dB");
+        if (value >= 1 && value <= 13)
+            return QStringLiteral("%1 dB").arg(-60 + (value - 1) * 3);
+        if (value == 14)
+            return QStringLiteral("-23 dB");
+        if (value == 56)
+            return QStringLiteral("18 dB");
+        if (value > 14 && value < 56)
+        {
+            // The two measured endpoints differ by 41 dB over 42 codes.
+            // Exact intermediate steps are not yet known.
+            const double decibels = -23.0 + (value - 14) * (41.0 / 42.0);
+            return QStringLiteral("≈%1 dB").arg(QString::number(decibels, 'f', 1));
+        }
+        return QStringLiteral("raw %1").arg(value);
     }
 
     float amplitude(int16_t value)
@@ -114,15 +180,9 @@ void mbcompressor::applySlider(int index, int32_t value)
         binding.label->setText(frequencyValue(value, 5, 96, 21.2, 4000.0));
     else
     if (index == 4)
-        binding.label->setText(frequencyValue(value, 18, 108, 42.5, 8000.0));
+        binding.label->setText(frequencyValue(value, 17, 108, 42.5, 8000.0));
     else
-    if (value == 0)
-        binding.label->setText(QStringLiteral("-inf dB"));
-    else
-    if (value >= 1 && value <= 79)
-        binding.label->setText(QStringLiteral("%1 dB").arg(value - 61));
-    else
-        binding.label->setText(QStringLiteral("raw %1").arg(value));
+        binding.label->setText(gainValue(value));
 
     if (binding.parameter->hasRange())
     {

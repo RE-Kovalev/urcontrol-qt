@@ -335,7 +335,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="896"/>
+        <location filename="mainwindow.cpp" line="895"/>
         <source>Connected: no parameters to read</source>
         <translation type="unfinished"></translation>
     </message>
@@ -495,7 +495,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mbcompressor.cpp" line="52"/>
+        <location filename="mbcompressor.cpp" line="118"/>
         <source>M.B.Comp - %1</source>
         <translation type="unfinished"></translation>
     </message>
