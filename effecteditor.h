@@ -15,13 +15,17 @@ public:
         : QDialog(parent)
         , channel_(channel)
     {
-        
+
     }
 
     uint8_t protocolChannel() const noexcept { return channel_; }
 
     virtual void applyIncomingParameter(uint16_t id, int32_t value) = 0;
     virtual void setMeterLevels(const urc_meter_level& value) = 0;
+    virtual void setStereoMeterLevels(const urc_meter_level& left, const urc_meter_level& right)
+    {
+        setMeterLevels(left);
+    }
     virtual void resetMeter() = 0;
 
 private:

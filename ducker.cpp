@@ -25,7 +25,6 @@ ducker::ducker(uint8_t channel, const QString& channelName, QWidget *parent)
 {
     ui->setupUi(this);
     setWindowTitle(tr("Ducker - %1").arg(channelName));
-    ui->levels->setMono(true);
 
     sources = {
         { {ui->input1, &input1Source}
@@ -166,12 +165,19 @@ void ducker::requestInitialValues()
 
 void ducker::setMeterLevels(const urc_meter_level& level)
 {
-    const float current = std::pow(10.0f, static_cast<float>(level.current) / 200.0f);
-    const float peak = std::pow(10.0f, static_cast<float>(level.peak) / 200.0f);
-    ui->levels->setLevels(current, current, peak, peak);
+    setStereoMeterLevels(level, level);
+}
+
+void ducker::setStereoMeterLevels(const urc_meter_level& left, const urc_meter_level& right)
+{
+    const float leftCurrent = std::pow(10.0f, static_cast<float>(left.current) / 200.0f);
+    const float leftPeak = std::pow(10.0f, static_cast<float>(left.peak) / 200.0f);
+    const float rightCurrent = std::pow(10.0f, static_cast<float>(right.current) / 200.0f);
+    const float rightPeak = std::pow(10.0f, static_cast<float>(right.peak) / 200.0f);
+    ui->levels->setLevels(leftCurrent, rightCurrent, leftPeak, rightPeak);
 }
 
 void ducker::resetMeter()
 {
-    ui->levels->setLevel(0.0f);
+    ui->levels->setLevels(0.0f, 0.0f, 0.0f, 0.0f);
 }

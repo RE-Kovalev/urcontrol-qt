@@ -170,6 +170,12 @@ void StreamingEffects::setMeterLevels(const urc_meter_level& level)
         edited->setMeterLevels(level);
 }
 
+void StreamingEffects::setStereoMeterLevels(const urc_meter_level& left, const urc_meter_level& right)
+{
+    if (edited)
+        edited->setStereoMeterLevels(left, right);
+}
+
 void StreamingEffects::resetMeter()
 {
     if (edited)

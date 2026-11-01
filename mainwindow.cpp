@@ -3,6 +3,7 @@
 #include "gate.h"
 #include "compressor.h"
 #include "ducker.h"
+#include "mbcompressor.h"
 #include "./ui_mainwindow.h"
 
 #include <QSettings>
@@ -65,6 +66,8 @@ constexpr int kMix1KnobRole = Qt::UserRole + 1;
 // Pending verification of streaming-effect level slots on UR22C
 constexpr int kInputGateMeters[kMaxInputs] = {74, 75, 76, 77, -1, -1};
 constexpr int kInputCompressorMeters[kMaxInputs] = {78, 79, 80, 81, -1, -1};
+constexpr MeterRoute kDuckerMeters[2] = {{68, 70}, {69, 71}};
+constexpr MeterRoute kMbCompressorMeters = {82, 83};
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -687,6 +690,13 @@ void MainWindow::configureStaticStreamingEffects()
     // Final streaming-mix output: M.B.Comp.
     ui->MainSE3->setVariants({tr("No Effect"), tr("M.B.Comp")});
     ui->MainSE3->setChannel(0, tr("Main"));
+    ui->MainSE3->setEditorFactory([](int type, uint8_t channel, const QString& title, QWidget* parent) -> EffectEditor*
+    {
+        if (type != 1)
+            return nullptr;
+
+        return new mbcompressor(channel, title, parent);
+    });
     bindStreamingEffect(ui->MainSE3, "MainMix3FXEnabled", "MainMix3FXType", 0);
 
     // REV-X is not a Streaming Effect. It is hidden by the existing constructor.
@@ -1269,6 +1279,30 @@ void MainWindow::showMeterLevels(const MeterFrame& levels)
         &&  slot < URC_METER_SLOTS)
             effect->setMeterLevels(levels[slot]);
     }
+
+    StreamingEffects* duckerEffects[] = {ui->DAWSE3, ui->MusicSE3, ui->VoiceSE3};
+    for (int source = 0; source < 3; source++)
+    {
+        const int slot = duckerSlots[source];
+        if (slot < 0
+        ||  slot >= 2
+        ||  !duckerSelected[source]
+        ||  !duckerEnabled[source]
+        ||  duckerMappingUncertain)
+        {
+            duckerEffects[source]->resetMeter();
+            continue;
+        }
+
+        const MeterRoute& route = kDuckerMeters[slot];
+        duckerEffects[source]->setStereoMeterLevels(levels[route.left], levels[route.right]);
+    }
+
+    if (ui->MainSE3->confirmedEffectType() == 1
+    &&  ui->MainSE3->confirmedEffectEnabled())
+        ui->MainSE3->setStereoMeterLevels(levels[kMbCompressorMeters.left], levels[kMbCompressorMeters.right]);
+    else
+        ui->MainSE3->resetMeter();
 }
 
 void MainWindow::applyIncomingParameter(uint16_t id, uint8_t channel, int32_t value)

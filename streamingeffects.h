@@ -34,10 +34,12 @@ public:
 
     void setChannel(uint8_t channel, const QString& channelName);
     void setEditorFactory(EditorFactory factory);
+    void setEditRequiresEnabled(bool required) { editRequiresEnabled = required; updateEditorButton(); }
     void setMeterSlot(int type, int slot) { meterSlots.insert(type, slot); }
     int effectMeterSlot() const { return meterSlots.value(confirmedType, -1); }
     void applyIncomingParameter(uint16_t id, uint8_t channel, int32_t value);
     void setMeterLevels(const urc_meter_level& level);
+    void setStereoMeterLevels(const urc_meter_level& left, const urc_meter_level& right);
     void resetMeter();
     void closeEditor();
 
@@ -58,6 +60,7 @@ private:
     QString channelTitle;
     QHash<int, int> meterSlots;
     EditorFactory editorFactory;
+    bool editRequiresEnabled = false;
     QPointer<EffectEditor> edited;
 };
 #endif // STREAMINGEFFECTS_H

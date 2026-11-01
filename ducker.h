@@ -25,6 +25,7 @@ public:
 
     void applyIncomingParameter(uint16_t id, int32_t value) override;
     void setMeterLevels(const urc_meter_level& level) override;
+    void setStereoMeterLevels(const urc_meter_level& left, const urc_meter_level& right) override;
     void resetMeter() override;
 
 private:
