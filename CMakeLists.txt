@@ -82,6 +82,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         effecteditor.h effectprotocol.h
         gate.h gate.cpp gate.ui
         compressor.h compressor.cpp compressor.ui
+        ducker.h ducker.cpp ducker.ui
+        mbcompressor.h mbcompressor.cpp mbcompressor.ui
 
 
     )

@@ -364,4 +364,118 @@
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>ducker</name>
+    <message>
+        <location filename="ducker.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="22"/>
+        <source>THRESHOLD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="36"/>
+        <source>80.0ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="46"/>
+        <source>DECAY</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="53"/>
+        <location filename="ducker.ui" line="112"/>
+        <source>0dB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="63"/>
+        <source>Input 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="70"/>
+        <source>RANGE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="77"/>
+        <source>ATTACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="84"/>
+        <source>DUCKER SOURCE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="98"/>
+        <source>Voice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="122"/>
+        <source>4.2s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ducker.ui" line="132"/>
+        <source>Input 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>mbcompressor</name>
+    <message>
+        <location filename="mbcompressor.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mbcompressor.ui" line="22"/>
+        <source>LOW GAIN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mbcompressor.ui" line="29"/>
+        <location filename="mbcompressor.ui" line="53"/>
+        <location filename="mbcompressor.ui" line="70"/>
+        <source>0dB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mbcompressor.ui" line="46"/>
+        <source>MID GAIN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mbcompressor.ui" line="63"/>
+        <source>HIGH GAIN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mbcompressor.ui" line="80"/>
+        <source>L-M XOVER</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mbcompressor.ui" line="87"/>
+        <source>125Hz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mbcompressor.ui" line="97"/>
+        <source>M-H XOVER</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mbcompressor.ui" line="104"/>
+        <source>3.35kHz</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 </TS>
