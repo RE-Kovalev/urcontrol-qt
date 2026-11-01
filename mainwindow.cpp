@@ -678,10 +678,7 @@ void MainWindow::configureStaticStreamingEffects()
             ||  duckerSlots[ch] < 0)
                 return nullptr;
             if (duckerMappingUncertain)
-            {
-                QMessageBox::warning(this, tr("Ducker"), tr("Ducker channel order cannot be restored from the device. Turn off all Duckers and enable them again in the desired order."));
                 return nullptr;
-            }
             return new ducker(static_cast<uint8_t>(duckerSlots[ch]), title, parent);
         });
         bindStreamingEffect(pcMix3[ch], "PCFX3Enabled", "PCFX3Type", ch);
@@ -977,9 +974,36 @@ void MainWindow::onInitialReadFinished()
     }
 
     // PCFX3Type/Enabled do not report historical Ducker DSP slot order.
-    duckerMappingUncertain = false;
-    for (int i = 0; i < static_cast<int>(duckerSlots.size()); i++)
-        duckerMappingUncertain |= duckerSelected[i] && duckerEnabled[i];
+    // Disable all three channels before allowing new Ducker assignments.
+    const urc_parameter* duckerEnabledParam = urc_find_parameter("mixer", "PCFX3Enabled");
+    const urc_parameter* duckerTypeParam = urc_find_parameter("mixer", "PCFX3Type");
+    bool duckerResetSucceeded = duckerEnabledParam != nullptr && duckerTypeParam != nullptr;
+    if (urc_device* device = Device::get())
+    {
+        if (duckerEnabledParam)
+            for (uint8_t channel = 0; channel < duckerSlots.size(); channel++)
+            {
+                const int result = urc_change_parameter(device, duckerEnabledParam->id, 0, channel);
+                if (result == URC_OK)
+                    applyIncomingParameter(duckerEnabledParam->id, channel, 0);
+                else
+                    duckerResetSucceeded = false;
+            }
+
+        if (duckerTypeParam)
+            for (uint8_t channel = 0; channel < duckerSlots.size(); channel++)
+            {
+                const int result = urc_change_parameter(device, duckerTypeParam->id, 0, channel);
+                if (result == URC_OK)
+                    applyIncomingParameter(duckerTypeParam->id, channel, 0);
+                else
+                    duckerResetSucceeded = false;
+            }
+    }
+    else
+        duckerResetSucceeded = false;
+
+    duckerMappingUncertain = !duckerResetSucceeded;
 
     ui->mixerTabs->setEnabled(true);
 

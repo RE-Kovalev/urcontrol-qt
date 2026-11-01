@@ -69,6 +69,12 @@ Some interfaces expose multiple MIDI subdevices. The required port depends on th
 
 The **Auto-connect** option attempts to reconnect to the previously selected port when the application starts.
 
+### Ducker startup behavior
+
+Whenever the application connects to the device, it disables Ducker processing for **DAW, Music and Voice** and sets all three effect selectors to **No Effect**. This is intentional: the device does not report which of the two shared Ducker DSP channels was assigned first, so their previous channel assignments cannot be restored reliably.
+
+Select Ducker for the desired channels and enable them again after connecting. The first enabled Ducker uses DSP channel 1, and the second uses DSP channel 2. At most two of DAW, Music and Voice can use Ducker simultaneously. Attempts to select or enable a third are rejected with a popup.
+
 ## Configuration
 
 `devices.ini` defines selectable interface models and the number of input channels displayed. For example:
