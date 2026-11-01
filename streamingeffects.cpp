@@ -92,8 +92,7 @@ void StreamingEffects::setEditorFactory(EditorFactory factory)
 
 void StreamingEffects::updateEditorButton()
 {
-    ui->editButton->setEnabled(available && editorFactory
-                               && ui->variants->currentData().toInt() != 0);
+    ui->editButton->setEnabled(available && editorFactory && ui->variants->currentData().toInt() != 0 && (!editRequiresEnabled || confirmedEnabled));
 }
 
 void StreamingEffects::setVariants(const QStringList& variants)
@@ -134,6 +133,7 @@ void StreamingEffects::setEffectEnabled(bool enabled)
     confirmedEnabled = enabled;
     const QSignalBlocker blocker(ui->enabled);
     ui->enabled->setChecked(enabled);
+    updateEditorButton();
 }
 void StreamingEffects::setEffectAvailable(bool value)
 {

@@ -78,6 +78,15 @@ private:
 
     QVector<QPointer<AudioKnob>> reverbKnobs[3];
 
+    // Two shared Ducker DSP slots for DAW, Music and Voice.
+    std::array<int, 3> duckerSlots{{-1, -1, -1}};
+    std::array<bool, 3> duckerSelected{{false, false, false}};
+    std::array<bool, 3> duckerEnabled{{false, false, false}};
+    bool duckerMappingUncertain = false;
+    int assignDuckerSlot(int source);
+    void releaseDuckerSlot(int source);
+    void updateDuckerState(int source);
+
     int reverbOutputValue = -1;
 
     void setReverbOutputValue(int32_t value);

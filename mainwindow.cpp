@@ -2,6 +2,7 @@
 #include "streamingeffects.h"
 #include "gate.h"
 #include "compressor.h"
+#include "ducker.h"
 #include "./ui_mainwindow.h"
 
 #include <QSettings>
@@ -345,6 +346,10 @@ void MainWindow::finishDisconnect()
     if (urc_device* device = Device::get())
         urc_set_callback(device, nullptr, nullptr);
     Device::close();
+    duckerSlots.fill(-1);
+    duckerSelected.fill(false);
+    duckerEnabled.fill(false);
+    duckerMappingUncertain = false;
     disconnectRequested = false;
     ui->modelComboBox->setEnabled(true);
     ui->midiPortComboBox->setEnabled(true);
@@ -476,6 +481,54 @@ void MainWindow::updateMixerRevs(QHBoxLayout* inputChannels, int mix)
 
     updateReverbKnobsEnabled();
 }
+int MainWindow::assignDuckerSlot(int source)
+{
+    if (source < 0 
+    ||  source >= static_cast<int>(duckerSlots.size()))
+        return -1;
+
+    if (duckerSlots[source] >= 0)
+        return duckerSlots[source];
+
+    for (int slot = 0; slot < 2; slot++)
+        if (std::find(duckerSlots.begin(), duckerSlots.end(), slot) == duckerSlots.end())
+        {
+            duckerSlots[source] = slot;
+            return slot;
+        }
+
+    return -1;
+}
+
+void MainWindow::releaseDuckerSlot(int source)
+{
+    if (source >= 0 
+    &&  source < static_cast<int>(duckerSlots.size()))
+        duckerSlots[source] = -1;
+}
+
+void MainWindow::updateDuckerState(int source)
+{
+    if (source < 0 
+    ||  source >= static_cast<int>(duckerSlots.size()))
+        return;
+
+    if (duckerSelected[source] 
+    &&  duckerEnabled[source])
+        assignDuckerSlot(source);
+    else
+        releaseDuckerSlot(source);
+
+    bool anyActive = false;
+    for (int i = 0; i < static_cast<int>(duckerSlots.size()); i++)
+        anyActive |= duckerSelected[i] && duckerEnabled[i];
+
+    if (!anyActive)
+    {
+        duckerMappingUncertain = false;
+        duckerSlots.fill(-1);
+    }
+}
 
 void MainWindow::bindStreamingEffect(StreamingEffects* effect, const char* enabledName, const char* typeName, uint8_t channel)
 {
@@ -484,6 +537,7 @@ void MainWindow::bindStreamingEffect(StreamingEffects* effect, const char* enabl
 
     const urc_parameter* enabledParam = urc_find_parameter("mixer", enabledName);
     const urc_parameter* typeParam = urc_find_parameter("mixer", typeName);
+    const bool isDucker = QString::fromLatin1(typeName) == QStringLiteral("PCFX3Type");
     const bool available = enabledParam && typeParam;
     effect->setEffectAvailable(available);
     if (!available)
@@ -492,25 +546,49 @@ void MainWindow::bindStreamingEffect(StreamingEffects* effect, const char* enabl
     const QPointer<StreamingEffects> target(effect);
 
     registerBinding(enabledParam, channel, effect,
-                    [target](int32_t value)
+                    [this, target, isDucker, channel](int32_t value)
                     {
+                        if (isDucker)
+                        {
+                            duckerEnabled[channel] = value != 0;
+                            updateDuckerState(channel);
+                        }
                         if (target)
+                        {
                             target->setEffectEnabled(value != 0);
+                            if (isDucker 
+                            &&  value == 0)
+                                target->closeEditor();
+                        }
                     }
                 );
     registerBinding(typeParam, channel, effect,
-                    [target](int32_t value)
+                    [this, target, isDucker, channel](int32_t value)
                     {
+                        if (isDucker)
+                        {
+                            duckerSelected[channel] = value == 1;
+                            updateDuckerState(channel);
+                        }
                         if (target)
                             target->setEffectType(value);
                     }
                 );
 
     connect(effect, &StreamingEffects::effectEnabledChanged, this,
-            [this, target, enabledParam, channel](bool checked)
+            [this, target, enabledParam, channel, isDucker](bool checked)
             {
                 if (!target)
                     return;
+                if (isDucker 
+                &&  checked 
+                &&  duckerSlots[channel] < 0
+                &&  std::count_if(duckerSlots.begin(), duckerSlots.end(), [](int slot) { return slot >= 0; }) >= 2)
+                {
+                    target->setEffectEnabled(target->confirmedEffectEnabled());
+                    QMessageBox::warning(this, tr("Ducker"), tr("Both Ducker DSP slots are already in use."));
+                    return;
+                }
                 urc_device* device = Device::get();
                 if (!device
                 ||  disconnectRequested
@@ -535,10 +613,19 @@ void MainWindow::bindStreamingEffect(StreamingEffects* effect, const char* enabl
         );
 
     connect(effect, &StreamingEffects::effectTypeChanged, this,
-            [this, target, typeParam, enabledName, channel](int type)
+            [this, target, typeParam, enabledName, channel, isDucker](int type)
             {
                 if (!target)
                     return;
+                if (isDucker 
+                &&  type == 1 
+                &&  !duckerSelected[channel]
+                &&  std::count(duckerSelected.begin(), duckerSelected.end(), true) >= 2)
+                {
+                    target->setEffectType(target->confirmedEffectType());
+                    QMessageBox::warning(this, tr("Ducker"), tr("Only two of DAW, Music and Voice can use Ducker simultaneously."));
+                    return;
+                }
                 urc_device* device = Device::get();
                 if (!device
                 ||  disconnectRequested
@@ -581,6 +668,19 @@ void MainWindow::configureStaticStreamingEffects()
     {
         pcMix3[ch]->setVariants(pcVariants);
         pcMix3[ch]->setChannel(ch, channelNames.at(ch));
+        pcMix3[ch]->setEditRequiresEnabled(true);
+        pcMix3[ch]->setEditorFactory([this, ch](int type, uint8_t, const QString& title, QWidget* parent) -> EffectEditor*
+        {
+            if (type != 1 
+            ||  duckerSlots[ch] < 0)
+                return nullptr;
+            if (duckerMappingUncertain)
+            {
+                QMessageBox::warning(this, tr("Ducker"), tr("Ducker channel order cannot be restored from the device. Turn off all Duckers and enable them again in the desired order."));
+                return nullptr;
+            }
+            return new ducker(static_cast<uint8_t>(duckerSlots[ch]), title, parent);
+        });
         bindStreamingEffect(pcMix3[ch], "PCFX3Enabled", "PCFX3Type", ch);
     }
 
@@ -865,6 +965,11 @@ void MainWindow::onInitialReadFinished()
         finishDisconnect();
         return;
     }
+
+    // PCFX3Type/Enabled do not report historical Ducker DSP slot order.
+    duckerMappingUncertain = false;
+    for (int i = 0; i < static_cast<int>(duckerSlots.size()); i++)
+        duckerMappingUncertain |= duckerSelected[i] && duckerEnabled[i];
 
     ui->mixerTabs->setEnabled(true);
 
