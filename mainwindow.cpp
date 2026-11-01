@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <QCheckBox>
 #include <QSignalBlocker>
+#include <memory>
 
 #include "midiport.h"
 #include "device.h"
@@ -114,6 +115,7 @@ MainWindow::MainWindow(QWidget *parent)
     bind("MainMix", ui->Main3, 3);
 
     bindReverbOutput();
+    updateHeadphonesMix();
 
     configureStaticStreamingEffects();
 
@@ -881,37 +883,73 @@ void MainWindow::on_mixerTabs_currentChanged(int index)
     &&  index >= 0)
     {
         saveLastSelection();
-        updateHeadphonesMix();
     }
 }
 
 void MainWindow::updateHeadphonesMix()
 {
-    if (!Device::get()
-    ||  reader)
-        return;
-
-    const int mixIndex = ui->mixerTabs->currentIndex();
-
-    if (mixIndex < 0
-    ||  mixIndex >= 3)
-        return;
-
-    static const int values[] = {0, 1, 4};
+    QCheckBox* headphones1 = ui->headphones1;
+    QCheckBox* headphones3 = ui->headphones3;
 
     const urc_parameter* parameter = urc_find_parameter("mixer", "Headphones2Input");
-
     if (!parameter)
-        return;
-
-    const int result = urc_change_parameter(Device::get(), parameter->id, values[mixIndex], 0);
-
-    if (result != URC_OK)
     {
-        qWarning() << "Headphones2Input error:"
-                   << result
-                   << urc_strerror(result);
+        headphones1->setEnabled(false);
+        headphones3->setEnabled(false);
+        return;
     }
+
+    // Keep the last confirmed device value, including Mix 2 (1).
+    const auto confirmedValue = std::make_shared<int32_t>(-1);
+    const auto applyValue = [headphones1, headphones3, confirmedValue](int32_t value)
+    {
+        *confirmedValue = value;
+        const QSignalBlocker block1(headphones1);
+        const QSignalBlocker block3(headphones3);
+        headphones1->setChecked(value == 0);
+        headphones3->setChecked(value == 3);
+    };
+
+    applyValue(-1);
+    registerBinding(parameter, 0, this, applyValue);
+
+    const auto selectMix = [this, parameter, confirmedValue, applyValue](int value, bool checked)
+    {
+        if (!checked)
+        {
+            applyValue(*confirmedValue);
+            return;
+        }
+
+        urc_device* device = Device::get();
+        if (!device 
+        ||  disconnectRequested 
+        ||  reader)
+        {
+            applyValue(*confirmedValue);
+            return;
+        }
+
+        const int result = urc_change_parameter(device, parameter->id, value, 0);
+        if (result != URC_OK)
+        {
+            qWarning() << "Headphones2Input error:" << urc_strerror(result);
+            applyValue(*confirmedValue);
+            return;
+        }
+
+        applyValue(value);
+    };
+
+    connect(headphones1, &QCheckBox::clicked, this, [selectMix](bool checked)
+    {
+        selectMix(0, checked);
+    });
+
+    connect(headphones3, &QCheckBox::clicked, this, [selectMix](bool checked)
+    {
+        selectMix(3, checked);
+    });
 }
 
 void MainWindow::midiCallback(const urc_message* message, const uint8_t* raw, size_t length, void* userData)

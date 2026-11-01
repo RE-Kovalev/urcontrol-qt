@@ -157,9 +157,9 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="REV_X1EmptyLabel">
+                 <widget class="QCheckBox" name="headphones1">
                   <property name="text">
-                   <string/>
+                   <string>Headphones</string>
                   </property>
                  </widget>
                 </item>
@@ -380,9 +380,9 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="REV_X3EmptyLabel_4">
+                 <widget class="QCheckBox" name="headphones3">
                   <property name="text">
-                   <string/>
+                   <string>Headphones</string>
                   </property>
                  </widget>
                 </item>
