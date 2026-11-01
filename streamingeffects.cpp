@@ -153,6 +153,7 @@ void StreamingEffects::updateEnabledControl()
         ui->enabled->setChecked(false);
     }
 
+    ui->editButton->setEnabled(canEnable);
     ui->enabled->setEnabled(canEnable);
 }
 
